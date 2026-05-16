@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astraea Quantum Chronograph - Luxury Elite</title>
+    
+    <style>
+        /* --- Base & Reset Intergalactique de Luxe --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Segoe UI', sans-serif;
+            background: #020106;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            perspective: 1500px; /* Activateur de l'espace 3D */
+            transition: filter 0.1s ease;
+        }
+
+        /* Effet de secousse globale chaotique pour le BODY */
+        @keyframes global-earthquake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            10% { transform: translate(-8px, 5px) rotate(-1.5deg); filter: hue-rotate(10deg); }
+            20% { transform: translate(7px, -5px) rotate(2deg); }
+            30% { transform: translate(-5px, -7px) rotate(-1deg); }
+            40% { transform: translate(9px, 8px) rotate(2.5deg); filter: saturate(1.5); }
+            50% { transform: translate(-9px, 3px) rotate(-2deg); }
+            60% { transform: translate(8px, -8px) rotate(3deg); }
+            70% { transform: translate(-6px, 9px) rotate(-2.5deg); }
+            80% { transform: translate(10px, -3px) rotate(1.5deg); }
+            90% { transform: translate(-7px, -6px) rotate(1deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        body.earthquake-active {
+            animation: global-earthquake 0.04s infinite !important;
+        }
+
+        /* Toile de fond spatiale */
+        #starfield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* --- Le Châssis : ASTRAEA CHRONOGRAPH (Effet 3D Magnétique) --- */
+        .calculator-container {
+            z-index: 10;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out; /* Fluidité du mouvement de souris */
+        }
+
+        .calculator {
+            background: linear-gradient(135deg, rgba(16, 16, 28, 0.82) 0%, rgba(7, 7, 12, 0.92) 100%);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 35px;
+            border-radius: 35px;
+            width: 410px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8),
+                        0 0 40px rgba(0, 242, 254, 0.1),
+                        inset 0 1px 2px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Cadre Laser Or/Cyan Animé (Luxe Absolu) */
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, #ffd700, transparent 30%, #00f2fe, transparent 50%);
+            animation: laserRotate 6s linear infinite;
+            z-index: -1;
+        }
+
+        /* Masque interne pour affiner la bordure laser */
+        .calculator-inner-border {
+            position: absolute;
+            top: 2px; left: 2px; right: 2px; bottom: 2px;
+            background: linear-gradient(135deg, #10101c 0%, #05050a 100%);
+            border-radius: 33px;
+            z-index: -1;
+        }
+
+        /* Interface Haute Horlogerie */
+        .brand {
+            color: #ffd700;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-align: center;
+            margin-bottom: 22px;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            opacity: 0.9;
+        }
+
+        /* --- Écran Cristallin Holographique --- */
+        .screen-container {
+            background: rgba(4, 4, 8, 0.9);
+            padding: 22px;
+            border-radius: 22px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.95),
+                        0 0 20px rgba(0, 242, 254, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Scanline d'affichage de luxe */
+        .screen-container::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(255, 215, 0, 0.04) 50%);
+            z-index: 2;
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+
+        /* Diode de liaison quantique */
+        .memory-indicator {
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            font-size: 0.65rem;
+            color: rgba(255, 215, 0, 0.2);
+            font-weight: bold;
+            letter-spacing: 2px;
+            transition: all 0.4s ease;
+        }
+        .memory-indicator.active {
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+            animation: pulse 1s infinite alternate;
+        }
+
+        #historique {
+            color: rgba(0, 242, 254, 0.5);
+            font-size: 0.9rem;
+            text-align: right;
+            min-height: 22px;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 6px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        #affichage {
+            color: #ffffff;
+            font-size: 2.6rem;
+            font-weight: 400;
+            text-align: right;
+            min-height: 55px;
+            overflow-x: auto;
+            white-space: nowrap;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+            scrollbar-width: none;
+            transition: color 0.3s ease;
+        }
+        #affichage::-webkit-scrollbar { display: none; }
+
+        #affichage.erreur {
+            color: #ff0055;
+            text-shadow: 0 0 20px #ff0055;
+            animation: glitch 0.2s infinite;
+        }
+
+        /* Flash de lumière blanche quantique */
+        .quantum-flash {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #ffffff;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s ease-out;
+        }
+
+        /* Animation de révélation magique pour le résultat */
+        @keyframes revealGold {
+            0% { color: #ffffff; text-shadow: 0 0 30px #ffffff; transform: scale(1.2); }
+            50% { color: #00f2fe; text-shadow: 0 0 40px #00f2fe; }
+            100% { color: #ffd700; text-shadow: 0 0 25px #ffd700; transform: scale(1); }
+        }
+        .reveal-grandioz {
+            animation: revealGold 1.5s ease-out forwards;
+        }
+
+        /* --- Matrice d'Interrupteurs Bijoux --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+        button {
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            outline: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 18px 0;
+            border-radius: 18px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(28, 28, 45, 0.6) 0%, rgba(18, 18, 30, 0.7) 100%);
+            color: #c7d2fe;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 1px rgba(255,255,255,0.05);
+            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        button:hover {
+            color: #ffffff;
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.15), inset 0 1px 5px rgba(255,255,255,0.1);
+            transform: translateY(-3px);
+        }
+
+        button:active, button.clavier-actif {
+            transform: translateY(1px);
+            background: rgba(12, 12, 20, 0.9);
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.8);
+        }
+
+        /* Effet d'onde Or/Cyan Royal au clic */
+        .ripple {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(0,242,254,0.1) 70%);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.5s ease-out;
+            pointer-events: none;
+        }
+
+        /* --- Couleurs Thématiques Haute Couture --- */
+        button[id="0"], button[id="1"], button[id="2"], button[id="3"], button[id="4"], button[id="5"], button[id="6"], button[id="7"], button[id="8"], button[id="9"], button[id="."] {
+            color: #f8fafc;
+        }
+
+        button[id="x"], button[id="÷"], button[id="+"], button[id="-"], button[id="^"], button[id="("], button[id=")"] {
+            background: rgba(0, 242, 254, 0.03);
+            color: #00f2fe;
+            border-color: rgba(0, 242, 254, 0.12);
+        }
+        button[id="x"]:hover, button[id="÷"]:hover, button[id="+"]:hover, button[id="-"]:hover, button[id="^"]:hover {
+            background: rgba(0, 242, 254, 0.12);
+            text-shadow: 0 0 10px #00f2fe;
+            border-color: #00f2fe;
+        }
+
+        #DEL, #AC {
+            background: rgba(255, 75, 75, 0.03);
+            color: #ff4b5c;
+            border-color: rgba(255, 75, 75, 0.15);
+        }
+        #DEL:hover, #AC:hover {
+            background: rgba(255, 75, 75, 0.15);
+            text-shadow: 0 0 10px #ff4b5c;
+            border-color: #ff4b5c;
+        }
+
+        #Mem, button[id="(-)"] {
+            background: rgba(255, 215, 0, 0.03);
+            color: #ffd700;
+            border-color: rgba(255, 215, 0, 0.15);
+        }
+        #Mem:hover, button[id="(-)"]:hover {
+            background: rgba(255, 215, 0, 0.15);
+            text-shadow: 0 0 10px #ffd700;
+            border-color: #ffd700;
+        }
+
+        #exe {
+            background: linear-gradient(135deg, #b38f00 0%, #ffd700 50%, #fef08a 100%);
+            color: #05050a;
+            font-weight: 700;
+            border: none;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.35);
+        }
+        #exe:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #ffffff 100%);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+            transform: translateY(-4px) scale(1.03);
+        }
+
+        /* --- Animations de Prestige --- */
+        @keyframes laserRotate { 100% { transform: rotate(360deg); } }
+        @keyframes ripple-animation { to { transform: scale(4.5); opacity: 0; } }
+        @keyframes pulse { from { opacity: 0.2; text-shadow: 0 0 2px #ffd700; } to { opacity: 1; text-shadow: 0 0 15px #ffd700; } }
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 1px) }
+            40% { transform: translate(-1px, -2px) }
+            60% { transform: translate(2px, 1px) }
+            80% { transform: translate(1px, -1px) }
+            100% { transform: translate(0) }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="quantum-flash" id="flashScreen"></div>
+
+<!-- Voie Lactée Dynamique -->
+<canvas id="starfield"></canvas>
+
+<!-- Conteneur pour l'effet d'inclinaison 3D Magnétique -->
+<div class="calculator-container" id="magnetChassis">
+    <div class="calculator" id="mainChassis">
+        <!-- Sous-couche de bordure laser -->
+        <div class="calculator-inner-border"></div>
+        
+        <div class="brand">ASTRAEA QUANTUM CHRONOGRAPH // LAB EDITION</div>
+        
+        <!-- Écran Tactile Cristallin -->
+        <div class="screen-container">
+            <div class="memory-indicator" id="memLED">QUANTUM-LINK</div>
+            <div id="historique"></div>
+            <div id="affichage">0</div>
+        </div>
+
+        <!-- Grille d'Interaction -->
+        <div class="grid-container">
+            <button id="7" onclick="ajout_calcul('7')">7</button>
+            <button id="8" onclick="ajout_calcul('8')">8</button>
+            <button id="9" onclick="ajout_calcul('9')">9</button>
+            <button id="DEL" onclick="erase_dernier()">DEL</button>
+            <button id="AC" onclick="erase_tout()">AC</button>
+            
+            <button id="4" onclick="ajout_calcul('4')">4</button>
+            <button id="5" onclick="ajout_calcul('5')">5</button>
+            <button id="6" onclick="ajout_calcul('6')">6</button>
+            <button id="x" onclick="ajout_calcul('*')">x</button> 
+            <button id="÷" onclick="ajout_calcul('/')">÷</button> 
+            
+            <button id="1" onclick="ajout_calcul('1')">1</button>
+            <button id="2" onclick="ajout_calcul('2')">2</button>
+            <button id="3" onclick="ajout_calcul('3')">3</button>
+            <button id="+" onclick="ajout_calcul('+')">+</button> 
+            <button id="- " onclick="ajout_calcul('-')">-</button> 
+            
+            <button id="0" onclick="ajout_calcul('0')">0</button>
+            <button id="." onclick="ajout_calcul('.')">.</button>
+            <button id="^" onclick="ajout_calcul('**')">^</button>
+            <button id="(-)" onclick="signe()">(-)</button> 
+            <button id="exe" onclick="evaluer()">EXE</button> 
+            
+            <button id="(" onclick="ajout_calcul('(')">(</button>
+            <button id=")" onclick="ajout_calcul(')')">)</button>
+            <button id="Mem" onclick="memorise()">Mem</button> 
+        </div>
+    </div>
+</div>
+
+<script>
+// --- Variables Métier ---
+let ligne = "";
+let resultat = 0;
+let mem = 0;
+let aAfficheResultat = false;
+let isLaunching = false; // Bloque le clavier pendant l'effet spectaculaire
+
+// --- Éléments du DOM ---
+const ecranPrincipal = document.getElementById("affichage");
+const ecranHistorique = document.getElementById("historique");
+const memLED = document.getElementById("memLED");
+const chassis = document.getElementById("magnetChassis");
+const mainChassis = document.getElementById("mainChassis");
+const flashScreen = document.getElementById("flashScreen");
+
+// --- Synthetiseur Audio Quantique Enrichi ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playBeep(freq = 700, duration = 0.05, type = 'triangle') {
+    try {
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {}
+}
+
+// Bruit de grondement de moteur de fusée généré de manière procédurale
+let rocketBufferSource = null;
+function playRocketEngine(duration = 2.5) {
+    try {
+        const bufferSize = audioCtx.sampleRate * duration;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+            let white = Math.random() * 2 - 1;
+            data[i] = (lastOut + (0.02 * white)) / 1.02;
+            lastOut = data[i];
+            data[i] *= 3.5; // Amplification
+        }
+        
+        rocketBufferSource = audioCtx.createBufferSource();
+        rocketBufferSource.buffer = buffer;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(100, audioCtx.currentTime);
+        filter.frequency.linearRampToValueAtTime(450, audioCtx.currentTime + duration); // Fréquence qui monte
+
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+        rocketBufferSource.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        rocketBufferSource.start();
+    } catch (e) {}
+}
+
+// --- Effet Magnétique 3D ---
+document.addEventListener("mousemove", (e) => {
+    if (isLaunching) return; // Désactive pendant le décollage pour garder le contrôle de la secousse
+    let ax = (window.innerWidth / 2 - e.clientX) / 25;  
+    let ay = (window.innerHeight / 2 - e.clientY) / 25; 
+    chassis.style.transform = `rotateY(${-ax}deg) rotateX(${ay}deg)`;
+});
+
+document.addEventListener("mouseleave", () => {
+    chassis.style.transform = `rotateY(0deg) rotateX(0deg)`;
+});
+
+function formaterLigneVisuelle(chaine) {
+    if (!chaine) return "";
+    return chaine.replace(/\*\*/g, "^").replace(/\*/g, "×").replace(/\//g, "÷");
+}
+
+function majDiodeMemoire() {
+    if (mem !== 0) memLED.classList.add("active");
+    else memLED.classList.remove("active");
+}
+
+function rafraichirEcran() {
+    ecranPrincipal.classList.remove("erreur", "reveal-grandioz");
+    ecranPrincipal.style.color = "#ffffff";
+    if (ligne === "") {
+        ecranPrincipal.innerText = "0";
+    } else {
+        ecranPrincipal.innerText = formaterLigneVisuelle(ligne);
+    }
+    ecranPrincipal.scrollLeft = ecranPrincipal.scrollWidth;
+}
+
+// --- Logique Fonctionnelle ---
+function ajout_calcul(caractere) {
+    if (isLaunching) return;
+    playBeep(600);
+    if (aAfficheResultat && !isNaN(caractere)) {
+        ligne = "";
+    }
+    aAfficheResultat = false;
+    ligne += caractere;
+    rafraichirEcran();
+}
+
+// =========================================================
+// SEQUENCER DE DÉCOLLAGE SPECTACULAIRE ET TOTALEMENT INSTABLE
+// =========================================================
+function evaluer() {
+    if (ligne === "" || isLaunching) return;
+    
+    try {
+        let formuleCalculee = formaterLigneVisuelle(ligne);
+        resultat = new Function(`return ${ligne}`)();
+        
+        if (resultat === Infinity || resultat === -Infinity || isNaN(resultat)) {
+            throw new Error();
+        }
+        if (resultat % 1 !== 0) {
+            resultat = Math.round(resultat * 1e12) / 1e12;
+        }
+
+        // --- ENCLENCHEMENT DE LA SÉQUENCE SPECTACULAIRE ---
+        isLaunching = true;
+        let finalResultStr = resultat.toString();
+        
+        // Active l'animation CSS violente de base sur le Body entier
+        document.body.classList.add("earthquake-active");
+        
+        // Moteur JavaScript micro-temporel : génère une déviation aléatoire absolue toutes les 15ms
+        let superShakeInterval = setInterval(() => {
+            if (!isLaunching) return;
+            // Distorsion folle et imprévisible de l'écran entier
+            let devX = (Math.random() * 30 - 15);
+            let devY = (Math.random() * 30 - 15);
+            let devRot = (Math.random() * 6 - 3);
+            let glitchScale = 1 + (Math.random() * 0.08 - 0.04);
+            
+            document.body.style.transform = `translate(${devX}px, ${devY}px) rotate(${devRot}deg) scale(${glitchScale})`;
+            
+            // Glitch chromatique aléatoire en arrière-plan
+            if (Math.random() > 0.7) {
+                document.body.style.filter = `hue-rotate(${Math.random() * 360}deg) saturate(${Math.random() * 3})`;
+            }
+        }, 15);
+
+        // Étape 1 : Préparation & Compte à rebours Quantique (0ms - 1000ms)
+        ecranHistorique.innerText = "LAUNCH SEQUENCE DETECTED...";
+        playBeep(400, 0.4, 'sawtooth');
+        
+        let countdown = 3;
+        ecranPrincipal.innerText = "T-MINUS " + countdown;
+        
+        let timerCountdown = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                ecranPrincipal.innerText = "T-MINUS " + countdown;
+                playBeep(400 + (3 - countdown) * 100, 0.2, 'sawtooth');
+            } else {
+                clearInterval(timerCountdown);
+            }
+        }, 400);
+
+        // Étape 2 : L'Allumage des Moteurs et Secousses (1100ms)
+        setTimeout(() => {
+            ecranHistorique.innerText = "IGNITION // THRUST 100%";
+            ecranPrincipal.style.color = "#ff4b5c";
+            ecranPrincipal.innerText = "🚀 IGNITE";
+            playRocketEngine(2.8);
+        }, 1100);
+
+        // Étape 3 : Décollage, Passage en Hyper-Vitesse & Distorsion (2200ms)
+        setTimeout(() => {
+            ecranHistorique.innerText = "ORBITAL ESCAPE // WARP DRIVE ACTIVE";
+            ecranPrincipal.style.color = "#00f2fe";
+            ecranPrincipal.innerText = "🌌 WARP CRUISE";
+            warpSpeedActive = true; 
+        }, 2200);
+
+        // Étape 4 : Le Révélation Finale et Stabilisation (4000ms)
+        setTimeout(() => {
+            // Arrêt total et net de la tempête cinétique
+            clearInterval(superShakeInterval);
+            document.body.classList.remove("earthquake-active");
+            document.body.style.transform = "";
+            document.body.style.filter = "";
+            
+            warpSpeedActive = false;
+            
+            // Grand Flash lumineux Quantique
+            flashScreen.style.opacity = "1";
+            playBeep(1100, 0.7, 'sine');
+            
+            setTimeout(() => { flashScreen.style.opacity = "0"; }, 150);
+
+            // Affichage de la formule calculée
+            ecranHistorique.innerText = formuleCalculee + " =";
+            
+            // Effet d'incrémentation matricielle magique pour le résultat final
+            let iterations = 0;
+            let matrixInterval = setInterval(() => {
+                iterations++;
+                let randomGlow = Array.from({length: finalResultStr.length}, () => 
+                    Math.floor(Math.random() * 10)).join('');
+                ecranPrincipal.innerText = randomGlow;
+                
+                if (iterations >= 15) {
+                    clearInterval(matrixInterval);
+                    // Révélation triomphale
+                    ecranPrincipal.innerText = finalResultStr;
+                    ecranPrincipal.classList.add("reveal-grandioz");
+                    ligne = finalResultStr;
+                    aAfficheResultat = true;
+                    isLaunching = false; 
+                }
+            }, 50);
+
+        }, 4000);
+
+    } catch (error) {
+        document.body.classList.remove("earthquake-active");
+        document.body.style.transform = "";
+        document.body.style.filter = "";
+        warpSpeedActive = false;
+        isLaunching = false;
+        playBeep(150, 0.3);
+        ecranPrincipal.innerText = "CRITICAL_OVERFLOW";
+        ecranPrincipal.classList.add("erreur");
+        ecranHistorique.innerText = "";
+        ligne = "";
+        aAfficheResultat = false;
+    }
+}
+
+function erase_dernier() {
+    if (isLaunching) return;
+    playBeep(450);
+    if (aAfficheResultat) { erase_tout(); return; }
+    if (ligne.endsWith("**")) ligne = ligne.slice(0, -2);
+    else ligne = ligne.slice(0, -1);
+    rafraichirEcran();
+}
+
+function erase_tout() {
+    if (isLaunching) return;
+    playBeep(350, 0.12);
+    ligne = "";
+    resultat = 0;
+    ecranHistorique.innerText = "";
+    aAfficheResultat = false;
+    rafraichirEcran();
+}
+
+function memorise() {
+    if (isLaunching) return;
+    playBeep(750);
+    if (aAfficheResultat || ligne !== "") {
+        try {
+            let evalVal = new Function(`return ${ligne}`)();
+            if (!isNaN(evalVal) && evalVal !== Infinity) {
+                mem = evalVal;
+                majDiodeMemoire();
+            }
+        } catch(e){}
+    } else {
+        ligne += mem.toString();
+        rafraichirEcran();
+    }
+}
+
+function signe() {
+    if (isLaunching) return;
+    playBeep(520);
+    if (ligne === "") return;
+    if (ligne.startsWith("-(") && ligne.endsWith(")")) {
+        ligne = ligne.slice(2, -1);
+    } else {
+        ligne = `-(${ligne})`;
+    }
+    rafraichirEcran();
+}
+
+// --- Effet visuel Onde Cristalline ---
+document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        if (isLaunching) return;
+        let ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        this.appendChild(ripple);
+        let x = e.clientX - e.target.getBoundingClientRect().left;
+        let y = e.clientY - e.target.getBoundingClientRect().top;
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        setTimeout(() => { ripple.remove(); }, 500);
+    });
+});
+
+// --- Mappage du Clavier Physique ---
+document.addEventListener("keydown", (event) => {
+    if (isLaunching) return;
+    let key = event.key;
+    let buttonId = null;
+
+    if (!isNaN(key)) buttonId = key;
+    else if (key === "+") buttonId = "+";
+    else if (key === "-") buttonId = "-";
+    else if (key === "*") buttonId = "x";
+    else if (key === "/") buttonId = "÷";
+    else if (key === ".") buttonId = ".";
+    else if (key === "(") buttonId = "(";
+    else if (key === ")") buttonId = ")";
+    else if (key === "^") buttonId = "^";
+    else if (key === "Enter" || key === "=") { buttonId = "exe"; event.preventDefault(); }
+    else if (key === "Backspace") buttonId = "DEL";
+    else if (key === "Escape") buttonId = "AC";
+
+    if (buttonId) {
+        const btnElement = document.getElementById(buttonId);
+        if (btnElement) {
+            btnElement.classList.add("clavier-actif");
+            setTimeout(() => btnElement.classList.remove("clavier-actif"), 120);
+            btnElement.click();
+        }
+    }
+});
+
+// ==============================================
+// MOTEUR DE FOND STELLAIRE : CHRONO-HYPERSPACE
+// ==============================================
+const canvas = document.getElementById("starfield");
+const ctx = canvas.getContext("2d");
+
+let numStars = 260;
+let stars = [];
+let maxDepth = 1000;
+let warpSpeedActive = false;
+let currentSpeed = 1.2;
+
+function initStars() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = [];
+    for (let i = 0; i < numStars; i++) {
+        stars.push({
+            x: Math.random() * canvas.width - canvas.width / 2,
+            y: Math.random() * canvas.height - canvas.height / 2,
+            z: Math.random() * maxDepth,
+            color: Math.random() > 0.85 ? "#ffd700" : (Math.random() > 0.6 ? "#00f2fe" : "#ffffff")
+        });
+    }
+}
+
+function updateAndDrawStars() {
+    ctx.fillStyle = `rgba(2, 1, 6, ${warpSpeedActive ? 0.08 : 0.35})`; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    let targetSpeed = warpSpeedActive ? 80 : 1.2; 
+    currentSpeed += (targetSpeed - currentSpeed) * 0.08; 
+
+    let cx = canvas.width / 2;
+    let cy = canvas.height / 2;
+
+    for (let i = 0; i < numStars; i++) {
+        let star = stars[i];
+        star.z -= currentSpeed;
+
+        if (star.z <= 0) {
+            star.z = maxDepth;
+            star.x = Math.random() * canvas.width - canvas.width / 2;
+            star.y = Math.random() * canvas.height - canvas.height / 2;
+        }
+
+        let px = (star.x / star.z) * maxDepth + cx;
+        let py = (star.y / star.z) * maxDepth + cy;
+
+        if (px >= 0 && px <= canvas.width && py >= 0 && py <= canvas.height) {
+            let size = (1 - star.z / maxDepth) * 3.5 + 0.3;
+            
+            if (warpSpeedActive) {
+                ctx.beginPath();
+                ctx.strokeStyle = star.color;
+                ctx.lineWidth = size * 1.5;
+                let oldPx = (star.x / (star.z + currentSpeed)) * maxDepth + cx;
+                let oldPy = (star.y / (star.z + currentSpeed)) * maxDepth + cy;
+                ctx.moveTo(oldPx, oldPy);
+                ctx.lineTo(px, py);
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.fillStyle = star.color;
+                ctx.arc(px, py, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+    requestAnimationFrame(updateAndDrawStars);
+}
+
+initStars();
+updateAndDrawStars();
+window.addEventListener("resize", initStars);
+</script>
+</body>
+</html>
