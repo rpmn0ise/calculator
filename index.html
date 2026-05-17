@@ -26,7 +26,8 @@
             padding: 0;
             overflow: hidden;
             position: relative;
-            /* Suppression de la perspective 3D globale qui fait bugger le rendu du fond */
+            /* On remet la perspective ici pour un calcul d'angle parfait sur tout l'écran */
+            perspective: 1500px;
             transition: background-color 0.5s ease;
         }
 
@@ -77,7 +78,7 @@
             z-index: 10;
             position: relative;
             transform-style: preserve-3d;
-            perspective: 1000px; /* La perspective est isolée ici maintenant */
+            will-change: transform; /* Indique au navigateur d'isoler l'élément pour la 3D */
             transition: transform 0.1s ease-out;
         }
 
@@ -111,11 +112,12 @@
         .calculator::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0; /* On le colle aux bords de la calculatrice */
+            top: 2px; left: 2px; right: 2px; bottom: 2px; /* LÉGÈREMENT rétracté pour épouser le cadre */
             background: conic-gradient(transparent, #ffd700, transparent 30%, #00f2fe, transparent 50%);
             animation: laserRotate 6s linear infinite;
-            z-index: -1;
-            border-radius: 35px; /* On lui donne les mêmes arrondis pour pas qu'il bave */
+            z-index: -2;
+            transform: translateZ(-1px); /* Placé physiquement derrière le fond de la calculatrice */
+            border-radius: 33px;
         }
 
         /* Masque interne pour affiner la bordure laser */
@@ -509,10 +511,11 @@ function playRocketEngine(duration = 2.5) {
     } catch (e) {}
 }
 
-// --- Effet Magnétique 3D & Aura Lumineuse ---
+// --- Effet Magnétique 3D & Aura Lumineuse (Version Restaurée et Amplifiée) ---
 document.addEventListener("mousemove", (e) => {
-    let ax = (window.innerWidth / 2 - e.clientX) / 25;  
-    let ay = (window.innerHeight / 2 - e.clientY) / 25; 
+    // Diviser par 20 au lieu de 25 pour donner un peu plus d'amplitude 3D au hover
+    let ax = (window.innerWidth / 2 - e.clientX) / 20;  
+    let ay = (window.innerHeight / 2 - e.clientY) / 20; 
     
     if (!isLaunching) {
         chassis.style.transform = `rotateY(${-ax}deg) rotateX(${ay}deg)`;
