@@ -1,546 +1,839 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEO-CYBER // Premium 3D Experience</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cyberpunk Premium 3D</title>
 
-    <style>
-        /* ----------------------------------------------------
-           1. RESET & VARIABLES (Palette Cyberpunk / Apple)
-           ---------------------------------------------------- */
-        :root {
-            --bg-color: #030303;
-            --primary: #00f3ff;      /* Cyan Lumineux */
-            --secondary: #bd00ff;    /* Violet Néon */
-            --text-main: #ffffff;
-            --text-muted: #888888;
-            --glass-bg: rgba(6, 6, 10, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+<!-- =========================
+     FONTS
+========================= -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
+<style>
 
-        body, html {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: var(--font-family);
-            overflow-x: hidden;
-            height: 100%;
-            scrollbar-width: none; /* Cache la scrollbar sur Firefox */
-        }
+/* =========================================================
+   RESET
+========================================================= */
 
-        body::-webkit-scrollbar {
-            display: none; /* Cache la scrollbar sur Chrome/Safari */
-        }
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
 
-        /* Canvas 3D Fixe en arrière-plan */
-        #webgl-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
-            pointer-events: none;
-            will-change: transform;
-        }
+html{
+  scroll-behavior:smooth;
+}
 
-        /* Effet de distortion global lors du scroll (Motion Blur simulé) */
-        .scroll-container {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            will-change: transform, filter;
-            transition: filter 0.1s ease-out;
-        }
+body{
+  font-family:"Inter",sans-serif;
+  background:#020307;
+  color:white;
+  overflow-x:hidden;
+  cursor:default;
+}
 
-        /* ----------------------------------------------------
-           2. INTERFACE & GLASSMORPHISM (UI Premium)
-           ---------------------------------------------------- */
-        
-        /* Header & Navigation */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 25px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-            background: linear-gradient(180deg, rgba(3,3,3,0.7) 0%, rgba(3,3,3,0) 100%);
-        }
+/* =========================================================
+   CANVAS
+========================================================= */
 
-        .logo {
-            font-weight: 900;
-            font-size: 1.4rem;
-            letter-spacing: 4px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-        }
+#bg{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:-10;
+}
 
-        nav a {
-            color: var(--text-muted);
-            text-decoration: none;
-            margin-left: 30px;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-        }
+/* =========================================================
+   GLOBAL
+========================================================= */
 
-        nav a:hover, nav a.active {
-            color: var(--text-main);
-        }
+:root{
+  --cyan:#00f0ff;
+  --purple:#a855f7;
+  --glass:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.12);
+}
 
-        nav a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background: var(--primary);
-            transition: width 0.4s ease;
-        }
+section{
+  min-height:100vh;
+  width:100%;
+  position:relative;
+  padding:120px 8vw;
+  display:flex;
+  align-items:center;
+}
 
-        nav a:hover::after {
-            width: 100%;
-        }
+.container{
+  width:100%;
+  max-width:1400px;
+  margin:auto;
+}
 
-        /* Style Général des Sections Appliquant le Parallaxe */
-        section {
-            min-height: 100vh;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            padding: 0 10%;
-            position: relative;
-            box-sizing: border-box;
-        }
+.blur{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(120px);
+  opacity:.25;
+  pointer-events:none;
+}
 
-        /* Alignements différenciés pour la dynamique de lecture */
-        section.align-right { justify-content: flex-end; }
-        section.align-center { justify-content: center; text-align: center; }
+.blur.a{
+  width:500px;
+  height:500px;
+  background:var(--purple);
+  top:-120px;
+  left:-120px;
+}
 
-        .content-block {
-            max-width: 600px;
-            opacity: 0;
-            transform: translateY(60px);
-            will-change: transform, opacity;
-        }
+.blur.b{
+  width:500px;
+  height:500px;
+  background:var(--cyan);
+  bottom:-150px;
+  right:-150px;
+}
 
-        /* Typographies Imposantes Cyberpunk */
-        .tagline {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            color: var(--primary);
-            margin-bottom: 15px;
-            display: inline-block;
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-        }
+/* =========================================================
+   NAVBAR
+========================================================= */
 
-        h1, h2 {
-            font-size: 4.5rem;
-            font-weight: 800;
-            line-height: 1.05;
-            letter-spacing: -2px;
-            margin-bottom: 25px;
-        }
+nav{
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(1200px,92%);
+  z-index:999;
+  padding:14px 24px;
+  backdrop-filter:blur(18px);
+  background:rgba(10,10,20,.45);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow:
+    0 0 40px rgba(0,240,255,.08),
+    inset 0 0 25px rgba(255,255,255,.03);
+}
 
-        h2 span {
-            background: linear-gradient(90deg, #fff 0%, var(--text-muted) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+.logo{
+  font-size:1rem;
+  font-weight:800;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color:white;
+}
 
-        .highlight-purple {
-            background: linear-gradient(135deg, #fff 30%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+.logo span{
+  color:var(--cyan);
+}
 
-        p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: var(--text-muted);
-            margin-bottom: 35px;
-        }
+.nav-links{
+  display:flex;
+  gap:28px;
+}
 
-        /* Bouton Premium avec lueur active */
-        .btn-premium {
-            display: inline-block;
-            padding: 16px 35px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-decoration: none;
-            overflow: hidden;
-            position: relative;
-            backdrop-filter: blur(5px);
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-        }
+.nav-links a{
+  color:#d6d6d6;
+  text-decoration:none;
+  font-size:.95rem;
+  position:relative;
+  transition:.3s ease;
+}
 
-        .btn-premium:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
-            transform: translateY(-2px);
-        }
+.nav-links a::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-6px;
+  width:0%;
+  height:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--purple));
+  transition:.3s;
+}
 
-        /* Cartes d'informations en Glassmorphism */
-        .grid-cards {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            margin-top: 20px;
-        }
+.nav-links a:hover{
+  color:white;
+}
 
-        .card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            padding: 40px;
-            border-radius: 24px;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transition: transform 0.4s ease, border-color 0.4s ease;
-        }
+.nav-links a:hover::after{
+  width:100%;
+}
 
-        .card:hover {
-            border-color: rgba(189, 0, 255, 0.4);
-            transform: translateY(-5px);
-        }
+/* =========================================================
+   HERO
+========================================================= */
 
-        .card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #fff;
-        }
+.hero{
+  display:flex;
+  align-items:center;
+}
 
-        /* Indicateur de défilement */
-        .scroll-indicator {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
+.hero-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:60px;
+  width:100%;
+  align-items:center;
+}
 
-        .mouse-dot {
-            width: 2px;
-            height: 15px;
-            background: var(--primary);
-            animation: floatBall 2s infinite ease-in-out;
-        }
+.hero-text h1{
+  font-size:clamp(3rem,8vw,7rem);
+  line-height:.92;
+  font-weight:900;
+  letter-spacing:-4px;
+  margin-bottom:24px;
+}
 
-        @keyframes floatBall {
-            0%, 100% { transform: translateY(0); opacity: 0.2; }
-            50% { transform: translateY(10px); opacity: 1; }
-        }
+.gradient{
+  background:linear-gradient(90deg,var(--cyan),#fff,var(--purple));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
 
-        /* Responsive Mobile */
-        @media (max-width: 768px) {
-            header { padding: 20px; }
-            nav { display: none; } /* Épuration mobile */
-            h1, h2 { font-size: 2.8rem; }
-            section { padding: 0 6%; }
-            .grid-cards { grid-template-columns: 1fr; }
-        }
-    </style>
+.hero-text p{
+  font-size:1.1rem;
+  line-height:1.7;
+  color:#bcbcbc;
+  max-width:650px;
+  margin-bottom:34px;
+}
+
+.buttons{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  padding:16px 28px;
+  border-radius:16px;
+  border:none;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:.35s ease;
+  transform:translateZ(0);
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  box-shadow:
+    0 0 25px rgba(0,240,255,.25),
+    0 0 50px rgba(168,85,247,.18);
+}
+
+.btn-secondary{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(16px);
+}
+
+.btn:hover{
+  transform:translateY(-4px) scale(1.02);
+}
+
+/* =========================================================
+   GLASS CARD
+========================================================= */
+
+.glass-card{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:28px;
+  backdrop-filter:blur(20px);
+  padding:32px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:
+    inset 0 0 30px rgba(255,255,255,.03),
+    0 0 50px rgba(0,0,0,.4);
+}
+
+.glass-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.08),
+      transparent 40%
+    );
+  pointer-events:none;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+}
+
+.stat{
+  padding:24px;
+  border-radius:20px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);
+  transition:.35s;
+}
+
+.stat:hover{
+  transform:translateY(-6px);
+  border-color:rgba(0,240,255,.4);
+  box-shadow:0 0 30px rgba(0,240,255,.12);
+}
+
+.stat h2{
+  font-size:2rem;
+  margin-bottom:8px;
+}
+
+.stat p{
+  color:#a8a8a8;
+}
+
+/* =========================================================
+   FEATURES
+========================================================= */
+
+.features{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:24px;
+  width:100%;
+}
+
+.feature{
+  min-height:260px;
+  transition:.45s cubic-bezier(.2,.8,.2,1);
+}
+
+.feature:hover{
+  transform:
+    translateY(-12px)
+    rotateX(5deg)
+    rotateY(-5deg);
+}
+
+.feature h3{
+  font-size:1.4rem;
+  margin-bottom:16px;
+}
+
+.feature p{
+  color:#b5b5b5;
+  line-height:1.7;
+}
+
+/* =========================================================
+   TITLES
+========================================================= */
+
+.section-title{
+  margin-bottom:60px;
+}
+
+.section-title small{
+  color:var(--cyan);
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+
+.section-title h2{
+  font-size:clamp(2.4rem,6vw,5rem);
+  line-height:1;
+  margin-top:10px;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer{
+  padding:80px 8vw;
+  text-align:center;
+  color:#8b8b8b;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:950px){
+
+  .hero-grid{
+    grid-template-columns:1fr;
+  }
+
+  .nav-links{
+    display:none;
+  }
+
+  .hero-text h1{
+    letter-spacing:-2px;
+  }
+
+}
+
+</style>
 </head>
 <body>
 
-    <div class="scroll-container" id="smooth-content">
+<!-- ======================================================
+     3D CANVAS
+====================================================== -->
 
-        <header>
-            <div class="logo">NeoCyber</div>
-            <nav>
-                <a href="#hero" class="active">Futur</a>
-                <a href="#specs">Données</a>
-                <a href="#core">Noyau</a>
-            </nav>
-        </header>
+<canvas id="bg"></canvas>
 
-        <section id="hero">
-            <div class="content-block" id="block1">
-                <span class="tagline">Bienvenue dans l'infra-monde</span>
-                <h1>L'ÈRE <br><span class="highlight-purple">POST-QUANTIQUE</span></h1>
-                <p>Découvrez une interface symbiotique pilotée par accélération matérielle. Flux de particules en temps réel et géométries disruptives.</p>
-                <a href="#specs" class="btn-premium">Initialiser l'expérience</a>
-            </div>
-            <div class="scroll-indicator">
-                <span>Scroll</span>
-                <div class="mouse-dot"></div>
-            </div>
-        </section>
+<!-- ======================================================
+     NAVBAR
+====================================================== -->
 
-        <section id="specs" class="align-right">
-            <div class="content-block" id="block2">
-                <span class="tagline">Spécifications Neurales</span>
-                <h2><span>Performance</span><br>Absolue.</h2>
-                <p>Optimisation asynchrone poussée au cœur de la matrice graphique à 120 FPS stables.</p>
-                
-                <div class="grid-cards">
-                    <div class="card">
-                        <h3>0.1ms</h3>
-                        <p>Temps de réponse synaptique.</p>
-                    </div>
-                    <div class="card">
-                        <h3>99.9%</h3>
-                        <p>Taux de bande passante pure.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+<nav>
+  <div class="logo">RPM<span>N0ISE</span></div>
 
-        <section id="core" class="align-center">
-            <div class="content-block" id="block3">
-                <span class="tagline">Singularité</span>
-                <h2>REJOINDRE<br><span class="highlight-purple">LE VORTEX</span></h2>
-                <p>Fusion ultime entre esthétique épurée et puissance cyberpunk brute.</p>
-                <a href="#" class="btn-premium" onclick="alert('Système fully operational.'); return false;">Activer le Core</a>
-            </div>
-        </section>
+  <div class="nav-links">
+    <a href="#hero">Accueil</a>
+    <a href="#features">Technologies</a>
+    <a href="#experience">Experience</a>
+    <a href="#future">Future</a>
+  </div>
+</nav>
+
+<!-- ======================================================
+     HERO
+====================================================== -->
+
+<section class="hero" id="hero">
+
+  <div class="blur a"></div>
+  <div class="blur b"></div>
+
+  <div class="container hero-grid">
+
+    <div class="hero-text">
+      <h1>
+        CYBERPUNK<br>
+        <span class="gradient">IMMERSIVE</span>
+      </h1>
+
+      <p>
+        Expérience 3D premium en temps réel avec animations
+        cinématiques, effets GPU, parallaxe avancée et interface
+        futuriste ultra fluide.
+      </p>
+
+      <div class="buttons">
+        <button class="btn btn-primary">Explorer</button>
+        <button class="btn btn-secondary">Documentation</button>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="stats">
+
+        <div class="stat">
+          <h2>120FPS</h2>
+          <p>Animations optimisées GPU</p>
+        </div>
+
+        <div class="stat">
+          <h2>3D</h2>
+          <p>Three.js temps réel</p>
+        </div>
+
+        <div class="stat">
+          <h2>GSAP</h2>
+          <p>Scroll cinématique</p>
+        </div>
+
+        <div class="stat">
+          <h2>WebGL</h2>
+          <p>Transitions immersives</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ======================================================
+     FEATURES
+====================================================== -->
+
+<section id="features">
+
+  <div class="container">
+
+    <div class="section-title">
+      <small>TECH STACK</small>
+      <h2>Realtime Visual Engine</h2>
+    </div>
+
+    <div class="features">
+
+      <div class="glass-card feature">
+        <h3>Dynamic Lighting</h3>
+        <p>
+          Éclairage volumétrique, glow néon,
+          bloom temps réel et profondeur cinématique.
+        </p>
+      </div>
+
+      <div class="glass-card feature">
+        <h3>Motion System</h3>
+        <p>
+          Animations synchronisées avec le scroll,
+          transitions physiques et mouvements fluides.
+        </p>
+      </div>
+
+      <div class="glass-card feature">
+        <h3>GPU Optimized</h3>
+        <p>
+          Rendering optimisé mobile et desktop
+          avec accélération matérielle avancée.
+        </p>
+      </div>
 
     </div>
 
-    <div id="webgl-container"></div>
+  </div>
 
-    <script>
-        /* --- CONFIGURATION INITIALE THREE.JS --- */
-        const container = document.getElementById('webgl-container');
-        const scene = new THREE.Scene();
-        
-        // Brouillard atmosphérique profond pour le blending cyberpunk
-        scene.fog = new THREE.FogExp2(0x030303, 0.015);
+</section>
 
-        // Caméra grand angle cinématographique
-        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.z = 30;
+<!-- ======================================================
+     EXPERIENCE
+====================================================== -->
 
-        // Rendu optimisé WebGL antialiasing
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limite à un ratio de 2 pour épargner le GPU mobile
-        renderer.setClearColor(scene.fog.color);
-        container.appendChild(renderer.domElement);
+<section id="experience">
 
-        /* --- OBJETS 3D : GÉOMÉTRIES CYBERPUNK --- */
-        const group3D = new THREE.Group();
-        scene.add(group3D);
+  <div class="container">
 
-        // 1. Matrice de Particules Interactives (Nuage stellaire / DATA)
-        const particleCount = window.innerWidth > 768 ? 2500 : 1000;
-        const particleGeo = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const randomSpeeds = new Float32Array(particleCount);
+    <div class="section-title">
+      <small>IMMERSION</small>
+      <h2>Next Generation Interface</h2>
+    </div>
 
-        for(let i = 0; i < particleCount * 3; i+=3) {
-            // Distribution sphérique / dispersée
-            positions[i] = (Math.random() - 0.5) * 60;
-            positions[i+1] = (Math.random() - 0.5) * 60;
-            positions[i+2] = (Math.random() - 0.5) * 60;
-            randomSpeeds[i/3] = Math.random() * 0.05 + 0.01;
-        }
-        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    <div class="glass-card">
+      <p style="font-size:1.2rem;line-height:2;color:#cfcfcf;">
+        Les objets 3D réagissent dynamiquement au défilement,
+        la caméra se déplace en profondeur et les particules
+        créent une ambiance futuriste vivante.
+      </p>
+    </div>
 
-        // Texture procédurale pour les particules afin d'éviter le chargement de fichiers externes (Self-contained)
-        const createParticleTexture = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 16; canvas.height = 16;
-            const ctx = canvas.getContext('2d');
-            const grad = ctx.createRadialGradient(8,8,0, 8,8,8);
-            grad.addColorStop(0, 'rgba(255,255,255,1)');
-            grad.addColorStop(1, 'rgba(255,255,255,0)');
-            ctx.fillStyle = grad; ctx.fillRect(0,0,16,16);
-            return new THREE.CanvasTexture(canvas);
-        };
+  </div>
 
-        const particleMat = new THREE.PointsMaterial({
-            size: 0.35,
-            map: createParticleTexture(),
-            transparent: true,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-            color: 0x00f3ff
-        });
-        const particleSystem = new THREE.Points(particleGeo, particleMat);
-        group3D.add(particleSystem);
+</section>
 
-        // 2. L'Objet Central : Le Vortex (Tore en maillage fil de fer haut de gamme)
-        const torusGeo = new THREE.TorusKnotGeometry(6, 1.8, 120, 16, 3, 4);
-        const torusMat = new THREE.MeshBasicMaterial({
-            color: 0xbd00ff,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.4
-        });
-        const centralVortex = new THREE.Mesh(torusGeo, torusMat);
-        group3D.add(centralVortex);
+<!-- ======================================================
+     FUTURE
+====================================================== -->
 
-        // 3. Éléments flottants secondaires (Hologrammes)
-        const floatersGroup = new THREE.Group();
-        group3D.add(floatersGroup);
-        const geometries = [new THREE.IcosahedronGeometry(1.5, 1), new THREE.OctahedronGeometry(1, 0)];
-        
-        for(let i=0; i<12; i++) {
-            const mat = new THREE.MeshBasicMaterial({
-                color: i % 2 === 0 ? 0x00f3ff : 0xbd00ff,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.25
-            });
-            const mesh = new THREE.Mesh(geometries[i % geometries.length], mat);
-            mesh.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*40, (Math.random()-0.5)*30);
-            mesh.userData = { speedX: Math.random()*0.01, speedY: Math.random()*0.01 };
-            floatersGroup.add(mesh);
-        }
+<section id="future">
 
-        /* --- ÉCLAIRAGE DYNAMIQUE EN TEMPS RÉEL --- */
-        const lightCyan = new THREE.PointLight(0x00f3ff, 3, 50);
-        lightCyan.position.set(15, 10, 10);
-        scene.add(lightCyan);
+  <div class="container">
 
-        const lightPurple = new THREE.PointLight(0xbd00ff, 4, 50);
-        lightPurple.position.set(-15, -10, 10);
-        scene.add(lightPurple);
+    <div class="section-title">
+      <small>FUTURE</small>
+      <h2>Premium Cyber Experience</h2>
+    </div>
 
-        /* --- INTERACTION SOURIS (PARALLAXE DU REGARD) --- */
-        const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-        window.addEventListener('mousemove', (e) => {
-            // Normalisation des coordonnées de la souris (-1 à 1)
-            mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
+    <div class="features">
 
-        /* --- ANIMATION FRAME LOOP (120FPS CHORÉGRAPHIE) --- */
-        const clock = new THREE.Clock();
-        
-        const tick = () => {
-            const elapsedTime = clock.getElapsedTime();
+      <div class="glass-card feature">
+        <h3>Realtime Depth</h3>
+        <p>
+          Effets de distortion et motion blur
+          inspirés des interfaces Apple et Tesla.
+        </p>
+      </div>
 
-            // Inertie fluide pour la parallaxe de la souris (Lerp technique)
-            mouse.x += (mouse.targetX - mouse.x) * 0.08;
-            mouse.y += (mouse.targetY - mouse.y) * 0.08;
+      <div class="glass-card feature">
+        <h3>Interactive Scene</h3>
+        <p>
+          Caméra dynamique, parallaxe avancée
+          et particules interactives.
+        </p>
+      </div>
 
-            // Application subtile sur le groupe principal pour donner de la profondeur
-            group3D.rotation.y = mouse.x * 0.25;
-            group3D.rotation.x = -mouse.y * 0.25;
+      <div class="glass-card feature">
+        <h3>Responsive Engine</h3>
+        <p>
+          Optimisations mobiles avec rendu
+          adaptatif et consommation GPU réduite.
+        </p>
+      </div>
 
-            // Rotations autonomes des structures géométriques
-            centralVortex.rotation.x = elapsedTime * 0.1;
-            centralVortex.rotation.y = elapsedTime * 0.15;
-            
-            particleSystem.rotation.y = elapsedTime * 0.02;
+    </div>
 
-            // Animation autonome des objets flottants secondaires
-            floatersGroup.children.forEach(child => {
-                child.rotation.x += child.userData.speedX;
-                child.rotation.y += child.userData.speedY;
-                child.position.y += Math.sin(elapsedTime + child.position.x) * 0.005;
-            });
+  </div>
 
-            // Rendu final de la frame
-            renderer.render(scene, camera);
-            window.requestAnimationFrame(tick);
-        };
-        tick();
+</section>
 
-        /* --- ORCHESTRATION GSAP SCROLLTRIGGER (CINÉMATIQUE CINÉTIQUE) --- */
-        gsap.registerPlugin(ScrollTrigger);
+<footer>
+  Cyberpunk Premium Experience — Three.js + GSAP
+</footer>
 
-        // Configuration globale de l'amortissement du scroll (Smooth feel type Apple)
-        const scrollContainer = document.getElementById('smooth-content');
-        let scrollVelocity = 0;
+<!-- ======================================================
+     LIBRARIES
+====================================================== -->
 
-        // Déclenchement des apparitions de texte (Reveal Premium)
-        const textBlocks = ['#block1', '#block2', '#block3'];
-        textBlocks.forEach((block) => {
-            gsap.to(block, {
-                opacity: 1,
-                y: 0,
-                duration: 1.4,
-                ease: "power4.out",
-                scrollTrigger: {
-                    trigger: block,
-                    start: "top 80%",
-                    toggleActions: "play none none reverse"
-                }
-            });
-        });
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-        // TIMELINE CINÉMATIQUE 3D : Synchronisation de la caméra et de l'espace avec le défilement
-        const treeTimeline = gsap.timeline({
-            scrollTrigger: {
-                trigger: "body",
-                start: "top top",
-                end: "bottom bottom",
-                scrub: 1.2, // Amortissement ultra-propre de la timeline 3D
-                onUpdate: (self) => {
-                    // Capture de la vélocité du scroll pour émuler le Motion Blur
-                    scrollVelocity = Math.abs(self.getVelocity());
-                    const blurIntensity = Math.min(scrollVelocity / 150, 8); // Max 8px de flou
-                    const skewIntensity = Math.min(scrollVelocity / 400, 3); // Distorsion légère
-                    
-                    if(window.innerWidth > 768) {
-                        scrollContainer.style.filter = `blur(${blurIntensity}px)`;
-                        scrollContainer.style.transform = `skewY(${skewIntensity * (self.direction)}deg)`;
-                    }
-                }
-            }
-        });
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 
-        // Séquençage des mouvements de caméra et variations d'ambiances colorimétriques
-        treeTimeline
-            // Étape 1 : Rapprochement et rotation vers la section Tech Specs
-            to(camera.position, { z: 18, x: -8, ease: "none" }, 0)
-            to(centralVortex.scale, { x: 1.3, y: 1.3, z: 1.3, ease: "none" }, 0)
-            to(particleMat, { color: 0xbd00ff, ease: "none" }, 0) // Changement chromatique progressif
-            
-            // Étape 2 : Plongée finale au cœur du vortex de données (Section Core)
-            .to(camera.position, { z: 8, x: 0, y: -2, ease: "none" })
-            .to(centralVortex.rotation, { z: Math.PI, ease: "none" }, "<")
-            .to(particleMat, { size: 0.6, ease: "none" }, "<");
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 
-        /* --- COMPATIBILITÉ & RESPONSIVE DESIGN ASYNCHRONE --- */
-        window.addEventListener('resize', () => {
-            // Update Caméra
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            
-            // Update Rendu
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        });
-    </script>
+<script>
+
+/* =========================================================
+   GSAP
+========================================================= */
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* =========================================================
+   THREE.JS SCENE
+========================================================= */
+
+const canvas = document.getElementById("bg");
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+
+camera.position.z = 8;
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias:true,
+  alpha:true,
+  powerPreference:"high-performance"
+});
+
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(window.innerWidth,window.innerHeight);
+
+/* =========================================================
+   LIGHTS
+========================================================= */
+
+const ambient = new THREE.AmbientLight(0xffffff,0.6);
+scene.add(ambient);
+
+const cyanLight = new THREE.PointLight(0x00f0ff,12,50);
+cyanLight.position.set(5,5,5);
+
+const purpleLight = new THREE.PointLight(0xa855f7,10,50);
+purpleLight.position.set(-5,-5,5);
+
+scene.add(cyanLight,purpleLight);
+
+/* =========================================================
+   FLOATING OBJECTS
+========================================================= */
+
+const objects = [];
+
+const geo1 = new THREE.TorusKnotGeometry(1.2,0.35,180,24);
+const mat1 = new THREE.MeshPhysicalMaterial({
+  color:0x00f0ff,
+  metalness:1,
+  roughness:0.15,
+  emissive:0x00f0ff,
+  emissiveIntensity:.45
+});
+
+const knot = new THREE.Mesh(geo1,mat1);
+scene.add(knot);
+objects.push(knot);
+
+const geo2 = new THREE.IcosahedronGeometry(1.3,1);
+
+const mat2 = new THREE.MeshPhysicalMaterial({
+  color:0xa855f7,
+  wireframe:true,
+  emissive:0xa855f7,
+  emissiveIntensity:.5
+});
+
+const ico = new THREE.Mesh(geo2,mat2);
+ico.position.set(4,-2,-4);
+
+scene.add(ico);
+objects.push(ico);
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+const particleCount = 2500;
+
+const positions = new Float32Array(particleCount * 3);
+
+for(let i=0;i<particleCount * 3;i++){
+  positions[i] = (Math.random() - 0.5) * 40;
+}
+
+const particlesGeometry = new THREE.BufferGeometry();
+
+particlesGeometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(positions,3)
+);
+
+const particlesMaterial = new THREE.PointsMaterial({
+  color:0x00f0ff,
+  size:0.03,
+  transparent:true,
+  opacity:0.9
+});
+
+const particles = new THREE.Points(
+  particlesGeometry,
+  particlesMaterial
+);
+
+scene.add(particles);
+
+/* =========================================================
+   MOUSE INTERACTION
+========================================================= */
+
+let mouseX = 0;
+let mouseY = 0;
+
+window.addEventListener("mousemove",(e)=>{
+
+  mouseX = (e.clientX / window.innerWidth - 0.5);
+  mouseY = (e.clientY / window.innerHeight - 0.5);
+
+});
+
+/* =========================================================
+   SCROLL ANIMATIONS
+========================================================= */
+
+gsap.to(camera.position,{
+  z:4,
+  scrollTrigger:{
+    trigger:"#features",
+    start:"top bottom",
+    end:"bottom top",
+    scrub:1.5
+  }
+});
+
+gsap.to(knot.rotation,{
+  y:Math.PI * 4,
+  x:Math.PI * 2,
+  scrollTrigger:{
+    trigger:"#experience",
+    start:"top bottom",
+    end:"bottom top",
+    scrub:2
+  }
+});
+
+gsap.to(ico.position,{
+  y:3,
+  x:-3,
+  scrollTrigger:{
+    trigger:"#future",
+    start:"top bottom",
+    end:"bottom top",
+    scrub:2
+  }
+});
+
+/* =========================================================
+   REVEAL ANIMATIONS
+========================================================= */
+
+gsap.utils.toArray(".glass-card").forEach((card)=>{
+
+  gsap.from(card,{
+    opacity:0,
+    y:80,
+    duration:1.2,
+    ease:"power3.out",
+    scrollTrigger:{
+      trigger:card,
+      start:"top 85%"
+    }
+  });
+
+});
+
+/* =========================================================
+   ANIMATION LOOP
+========================================================= */
+
+const clock = new THREE.Clock();
+
+function animate(){
+
+  requestAnimationFrame(animate);
+
+  const elapsed = clock.getElapsedTime();
+
+  /* Floating motion */
+  knot.rotation.x += 0.003;
+  knot.rotation.y += 0.004;
+
+  knot.position.y = Math.sin(elapsed) * 0.4;
+
+  ico.rotation.y -= 0.003;
+  ico.rotation.x += 0.002;
+
+  /* Particles */
+  particles.rotation.y += 0.0008;
+  particles.rotation.x += 0.0003;
+
+  /* Camera smoothing */
+  camera.position.x += ((mouseX * 2) - camera.position.x) * 0.03;
+  camera.position.y += ((-mouseY * 2) - camera.position.y) * 0.03;
+
+  /* Dynamic lights */
+  cyanLight.position.x = Math.sin(elapsed) * 8;
+  purpleLight.position.y = Math.cos(elapsed) * 8;
+
+  renderer.render(scene,camera);
+
+}
+
+animate();
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener("resize",()=>{
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth,window.innerHeight);
+
+});
+
+</script>
+
 </body>
 </html>
