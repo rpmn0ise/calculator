@@ -3,928 +3,544 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Astraea Quantum Chronograph - Luxury Elite</title>
+    <title>NEO-CYBER // Premium 3D Experience</title>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <style>
-        /* --- Base & Reset Intergalactique de Luxe --- */
+        /* ----------------------------------------------------
+           1. RESET & VARIABLES (Palette Cyberpunk / Apple)
+           ---------------------------------------------------- */
+        :root {
+            --bg-color: #030303;
+            --primary: #00f3ff;      /* Cyan Lumineux */
+            --secondary: #bd00ff;    /* Violet Néon */
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --glass-bg: rgba(6, 6, 10, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             user-select: none;
-            -webkit-user-select: none;
         }
 
-	body {
-            font-family: 'Orbitron', 'Segoe UI', sans-serif;
-            background: #020106;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        body, html {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            overflow-x: hidden;
+            height: 100%;
+            scrollbar-width: none; /* Cache la scrollbar sur Firefox */
+        }
+
+        body::-webkit-scrollbar {
+            display: none; /* Cache la scrollbar sur Chrome/Safari */
+        }
+
+        /* Canvas 3D Fixe en arrière-plan */
+        #webgl-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
             height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        /* Effet de distortion global lors du scroll (Motion Blur simulé) */
+        .scroll-container {
             position: relative;
-            /* On remet la perspective ici pour un calcul d'angle parfait sur tout l'écran */
-            perspective: 1500px;
-            transition: background-color 0.5s ease;
+            z-index: 2;
+            width: 100%;
+            will-change: transform, filter;
+            transition: filter 0.1s ease-out;
         }
 
-        /* Mode Alerte Rouge Critique global */
-        body.critical-alert {
-            background-color: #100005 !important;
-            animation: redPulse 1.5s infinite alternate;
-        }
-
-        @keyframes redPulse {
-            0% { box-shadow: inset 0 0 100px rgba(255, 0, 85, 0.15); }
-            100% { box-shadow: inset 0 0 200px rgba(255, 0, 85, 0.45); }
-        }
-
-	/* Effet de secousse globale pour le BODY sans bug de couleur */
-        @keyframes global-earthquake {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            10% { transform: translate(-6px, 4px) rotate(-1deg); }
-            20% { transform: translate(5px, -4px) rotate(1.5deg); }
-            30% { transform: translate(-4px, -5px) rotate(-0.5deg); }
-            40% { transform: translate(7px, 6px) rotate(2deg); }
-            50% { transform: translate(-7px, 2px) rotate(-1.5deg); }
-            60% { transform: translate(6px, -6px) rotate(2deg); }
-            70% { transform: translate(-5px, 7px) rotate(-2deg); }
-            80% { transform: translate(8px, -2px) rotate(1deg); }
-            90% { transform: translate(-5px, -4px) rotate(0.5deg); }
-            100% { transform: translate(0, 0) rotate(0deg); }
-        }
-
-        body.earthquake-active {
-            animation: global-earthquake 0.04s infinite !important;
-        }
-
-        /* Toiles de fond spatiales */
-        #starfield, #shockwaveCanvas {
-            position: absolute;
+        /* ----------------------------------------------------
+           2. INTERFACE & GLASSMORPHISM (UI Premium)
+           ---------------------------------------------------- */
+        
+        /* Header & Navigation */
+        header {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
-        #shockwaveCanvas { z-index: 2; }
-
-	/* --- Le Châssis : ASTRAEA CHRONOGRAPH --- */
-        .calculator-container {
+            padding: 25px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             z-index: 10;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            background: linear-gradient(180deg, rgba(3,3,3,0.7) 0%, rgba(3,3,3,0) 100%);
+        }
+
+        .logo {
+            font-weight: 900;
+            font-size: 1.4rem;
+            letter-spacing: 4px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
-            transform-style: preserve-3d;
-            will-change: transform; /* Indique au navigateur d'isoler l'élément pour la 3D */
-            transition: transform 0.1s ease-out;
         }
 
-        /* Aura lumineuse interactive projetée derrière le châssis */
-        .chassis-aura {
-            position: absolute;
-            top: -10%; left: -10%; width: 120%; height: 120%;
-            background: radial-gradient(circle, rgba(0, 242, 254, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: -2;
-            transform: translateZ(-50px);
-            transition: background 0.3s ease;
+        nav a:hover, nav a.active {
+            color: var(--text-main);
         }
 
-	.calculator {
-            background: linear-gradient(135deg, rgba(16, 16, 28, 0.85) 0%, rgba(7, 7, 12, 0.95) 100%);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            padding: 35px;
-            border-radius: 35px;
-            width: 410px;
-            position: relative;
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8),
-                        0 0 40px rgba(0, 242, 254, 0.1),
-                        inset 0 1px 2px rgba(255, 215, 0, 0.2);
-            overflow: hidden; /* <-- AJOUTE CETTE LIGNE ICI pour bloquer les fuites visuelles */
-        }
-
-	/* Cadre Laser Or/Cyan Animé (Masqué proprement) */
-        .calculator::before {
+        nav a::after {
             content: '';
             position: absolute;
-            top: 2px; left: 2px; right: 2px; bottom: 2px; /* LÉGÈREMENT rétracté pour épouser le cadre */
-            background: conic-gradient(transparent, #ffd700, transparent 30%, #00f2fe, transparent 50%);
-            animation: laserRotate 6s linear infinite;
-            z-index: -2;
-            transform: translateZ(-1px); /* Placé physiquement derrière le fond de la calculatrice */
-            border-radius: 33px;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--primary);
+            transition: width 0.4s ease;
         }
 
-        /* Masque interne pour affiner la bordure laser */
-        .calculator-inner-border {
-            position: absolute;
-            top: 2px; left: 2px; right: 2px; bottom: 2px;
-            background: linear-gradient(135deg, #10101c 0%, #05050a 100%);
-            border-radius: 33px;
-            z-index: -1;
-            transition: background 0.5s ease;
+        nav a:hover::after {
+            width: 100%;
         }
 
-        body.critical-alert .calculator-inner-border {
-            background: linear-gradient(135deg, #20050d 0%, #0a0104 100%);
-        }
-
-        /* Interface Haute Horlogerie */
-        .brand {
-            color: #ffd700;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-align: center;
-            margin-bottom: 22px;
-            font-weight: 700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            opacity: 0.9;
-            transition: color 0.5s ease;
-        }
-        body.critical-alert .brand {
-            color: #ff0055;
-            text-shadow: 0 0 15px #ff0055;
-        }
-
-        /* --- Écran Cristallin Holographique --- */
-        .screen-container {
-            background: rgba(4, 4, 8, 0.9);
-            padding: 22px;
-            border-radius: 22px;
-            margin-bottom: 28px;
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.95),
-                        0 0 20px rgba(0, 242, 254, 0.05);
+        /* Style Général des Sections Appliquant le Parallaxe */
+        section {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 10%;
             position: relative;
-            overflow: hidden;
-            transition: border-color 0.5s ease;
-        }
-        body.critical-alert .screen-container {
-            border-color: rgba(255, 0, 85, 0.4);
+            box-sizing: border-box;
         }
 
-        /* Scanline d'affichage de luxe */
-        .screen-container::before {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(255, 215, 0, 0.04) 50%);
-            z-index: 2;
-            background-size: 100% 4px;
-            pointer-events: none;
-        }
+        /* Alignements différenciés pour la dynamique de lecture */
+        section.align-right { justify-content: flex-end; }
+        section.align-center { justify-content: center; text-align: center; }
 
-        /* Diode de liaison quantique */
-        .memory-indicator {
-            position: absolute;
-            top: 12px;
-            left: 20px;
-            font-size: 0.65rem;
-            color: rgba(255, 215, 0, 0.2);
-            font-weight: bold;
-            letter-spacing: 2px;
-            transition: all 0.4s ease;
-        }
-        .memory-indicator.active {
-            color: #ffd700;
-            text-shadow: 0 0 10px #ffd700;
-            animation: pulse 1s infinite alternate;
-        }
-
-        #historique {
-            color: rgba(0, 242, 254, 0.5);
-            font-size: 0.9rem;
-            text-align: right;
-            min-height: 22px;
-            overflow-x: auto;
-            white-space: nowrap;
-            margin-bottom: 6px;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 1px;
-        }
-
-        #affichage {
-            color: #ffffff;
-            font-size: 2.6rem;
-            font-weight: 400;
-            text-align: right;
-            min-height: 55px;
-            overflow-x: auto;
-            white-space: nowrap;
-            font-family: 'Courier New', monospace;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
-            scrollbar-width: none;
-            transition: color 0.3s ease;
-        }
-        #affichage::-webkit-scrollbar { display: none; }
-
-        #affichage.erreur {
-            color: #ff0055;
-            text-shadow: 0 0 20px #ff0055;
-            animation: glitch 0.2s infinite;
-        }
-
-        /* Flash de lumière blanche quantique */
-        .quantum-flash {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #ffffff;
-            z-index: 100;
+        .content-block {
+            max-width: 600px;
             opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.1s ease-out;
+            transform: translateY(60px);
+            will-change: transform, opacity;
         }
 
-        /* Animation de révélation magique pour le résultat */
-        @keyframes revealGold {
-            0% { color: #ffffff; text-shadow: 0 0 30px #ffffff; transform: scale(1.2); }
-            50% { color: #00f2fe; text-shadow: 0 0 40px #00f2fe; }
-            100% { color: #ffd700; text-shadow: 0 0 25px #ffd700; transform: scale(1); }
-        }
-        .reveal-grandioz {
-            animation: revealGold 1.5s ease-out forwards;
-        }
-
-        /* Particules de propulsion (Jet de plasma) */
-        .plasma-particle {
-            position: absolute;
-            width: 6px; height: 6px;
-            background: radial-gradient(circle, #00f2fe, transparent);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 5;
-            animation: plasmaBurn 0.6s linear forwards;
+        /* Typographies Imposantes Cyberpunk */
+        .tagline {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: inline-block;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
         }
 
-        @keyframes plasmaBurn {
-            0% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px); }
-            100% { transform: scale(3) translateY(120px); opacity: 0; filter: blur(4px); }
+        h1, h2 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 25px;
         }
 
-        /* --- Matrice d'Interrupteurs Bijoux --- */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 14px;
+        h2 span {
+            background: linear-gradient(90deg, #fff 0%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        button {
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            outline: none;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
+        .highlight-purple {
+            background: linear-gradient(135deg, #fff 30%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 35px;
+        }
+
+        /* Bouton Premium avec lueur active */
+        .btn-premium {
+            display: inline-block;
+            padding: 16px 35px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            color: white;
+            font-size: 0.9rem;
             font-weight: 600;
-            padding: 18px 0;
-            border-radius: 18px;
-            cursor: pointer;
-            position: relative;
+            letter-spacing: 1px;
+            text-decoration: none;
             overflow: hidden;
-            background: linear-gradient(135deg, rgba(28, 28, 45, 0.6) 0%, rgba(18, 18, 30, 0.7) 100%);
-            color: #c7d2fe;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4),
-                        inset 0 1px 1px rgba(255,255,255,0.05);
-            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            position: relative;
+            backdrop-filter: blur(5px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
         }
 
-        button:hover {
-            color: #ffffff;
-            border-color: rgba(255, 215, 0, 0.3);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.15), inset 0 1px 5px rgba(255,255,255,0.1);
-            transform: translateY(-3px);
+        .btn-premium:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+            transform: translateY(-2px);
         }
 
-        button:active, button.clavier-actif {
-            transform: translateY(1px);
-            background: rgba(12, 12, 20, 0.9);
-            box-shadow: inset 0 3px 8px rgba(0,0,0,0.8);
+        /* Cartes d'informations en Glassmorphism */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-top: 20px;
         }
 
-        /* Effet d'onde Or/Cyan Royal au clic */
-        .ripple {
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: transform 0.4s ease, border-color 0.4s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(189, 0, 255, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        /* Indicateur de défilement */
+        .scroll-indicator {
             position: absolute;
-            background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, rgba(0,242,254,0.1) 70%);
-            border-radius: 50%;
-            transform: scale(0);
-            animation: ripple-animation 0.5s ease-out;
-            pointer-events: none;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
-        /* --- Couleurs Thématiques Haute Couture --- */
-        button[id="0"], button[id="1"], button[id="2"], button[id="3"], button[id="4"], button[id="5"], button[id="6"], button[id="7"], button[id="8"], button[id="9"], button[id="."] {
-            color: #f8fafc;
+        .mouse-dot {
+            width: 2px;
+            height: 15px;
+            background: var(--primary);
+            animation: floatBall 2s infinite ease-in-out;
         }
 
-        button[id="x"], button[id="÷"], button[id="+"], button[id="-"], button[id="^"], button[id="("], button[id=")"] {
-            background: rgba(0, 242, 254, 0.03);
-            color: #00f2fe;
-            border-color: rgba(0, 242, 254, 0.12);
-        }
-        button[id="x"]:hover, button[id="÷"]:hover, button[id="+"]:hover, button[id="-"]:hover, button[id="^"]:hover {
-            background: rgba(0, 242, 254, 0.12);
-            text-shadow: 0 0 10px #00f2fe;
-            border-color: #00f2fe;
+        @keyframes floatBall {
+            0%, 100% { transform: translateY(0); opacity: 0.2; }
+            50% { transform: translateY(10px); opacity: 1; }
         }
 
-        #DEL, #AC {
-            background: rgba(255, 75, 75, 0.03);
-            color: #ff4b5c;
-            border-color: rgba(255, 75, 75, 0.15);
-        }
-        #DEL:hover, #AC:hover {
-            background: rgba(255, 75, 75, 0.15);
-            text-shadow: 0 0 10px #ff4b5c;
-            border-color: #ff4b5c;
-        }
-
-        #Mem, button[id="(-)"] {
-            background: rgba(255, 215, 0, 0.03);
-            color: #ffd700;
-            border-color: rgba(255, 215, 0, 0.15);
-        }
-        #Mem:hover, button[id="(-)"]:hover {
-            background: rgba(255, 215, 0, 0.15);
-            text-shadow: 0 0 10px #ffd700;
-            border-color: #ffd700;
-        }
-
-        #exe {
-            background: linear-gradient(135deg, #b38f00 0%, #ffd700 50%, #fef08a 100%);
-            color: #05050a;
-            font-weight: 700;
-            border: none;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.35);
-        }
-        #exe:hover {
-            background: linear-gradient(135deg, #ffd700 0%, #ffffff 100%);
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
-            transform: translateY(-4px) scale(1.03);
-        }
-
-        /* --- Animations de Prestige --- */
-        @keyframes laserRotate { 100% { transform: rotate(360deg); } }
-        @keyframes ripple-animation { to { transform: scale(4.5); opacity: 0; } }
-        @keyframes pulse { from { opacity: 0.2; text-shadow: 0 0 2px #ffd700; } to { opacity: 1; text-shadow: 0 0 15px #ffd700; } }
-        @keyframes glitch {
-            0% { transform: translate(0) }
-            20% { transform: translate(-2px, 1px) }
-            40% { transform: translate(-1px, -2px) }
-            60% { transform: translate(2px, 1px) }
-            80% { transform: translate(1px, -1px) }
-            100% { transform: translate(0) }
+        /* Responsive Mobile */
+        @media (max-width: 768px) {
+            header { padding: 20px; }
+            nav { display: none; } /* Épuration mobile */
+            h1, h2 { font-size: 2.8rem; }
+            section { padding: 0 6%; }
+            .grid-cards { grid-template-columns: 1fr; }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div class="quantum-flash" id="flashScreen"></div>
+    <div class="scroll-container" id="smooth-content">
 
-<!-- Toiles de fond cinétiques -->
-<canvas id="starfield"></canvas>
-<canvas id="shockwaveCanvas"></canvas>
+        <header>
+            <div class="logo">NeoCyber</div>
+            <nav>
+                <a href="#hero" class="active">Futur</a>
+                <a href="#specs">Données</a>
+                <a href="#core">Noyau</a>
+            </nav>
+        </header>
 
-<!-- Conteneur avec Effets Lumineux & Géométriques -->
-<div class="calculator-container" id="magnetChassis">
-    <div class="chassis-aura" id="auraBack"></div>
-    <div class="calculator" id="mainChassis">
-        <div class="calculator-inner-border"></div>
-        
-        <div class="brand">ASTRAEA QUANTUM CHRONOGRAPH // LAB EDITION</div>
-        
-        <!-- Écran Tactile Holographique -->
-        <div class="screen-container">
-            <div class="memory-indicator" id="memLED">QUANTUM-LINK</div>
-            <div id="historique"></div>
-            <div id="affichage">0</div>
-        </div>
+        <section id="hero">
+            <div class="content-block" id="block1">
+                <span class="tagline">Bienvenue dans l'infra-monde</span>
+                <h1>L'ÈRE <br><span class="highlight-purple">POST-QUANTIQUE</span></h1>
+                <p>Découvrez une interface symbiotique pilotée par accélération matérielle. Flux de particules en temps réel et géométries disruptives.</p>
+                <a href="#specs" class="btn-premium">Initialiser l'expérience</a>
+            </div>
+            <div class="scroll-indicator">
+                <span>Scroll</span>
+                <div class="mouse-dot"></div>
+            </div>
+        </section>
 
-        <!-- Grille de Touches Cristallines -->
-        <div class="grid-container">
-            <button id="7" onclick="ajout_calcul('7')">7</button>
-            <button id="8" onclick="ajout_calcul('8')">8</button>
-            <button id="9" onclick="ajout_calcul('9')">9</button>
-            <button id="DEL" onclick="erase_dernier()">DEL</button>
-            <button id="AC" onclick="erase_tout()">AC</button>
-            
-            <button id="4" onclick="ajout_calcul('4')">4</button>
-            <button id="5" onclick="ajout_calcul('5')">5</button>
-            <button id="6" onclick="ajout_calcul('6')">6</button>
-            <button id="x" onclick="ajout_calcul('*')">x</button> 
-            <button id="÷" onclick="ajout_calcul('/')">÷</button> 
-            
-            <button id="1" onclick="ajout_calcul('1')">1</button>
-            <button id="2" onclick="ajout_calcul('2')">2</button>
-            <button id="3" onclick="ajout_calcul('3')">3</button>
-            <button id="+" onclick="ajout_calcul('+')">+</button> 
-            <button id="- " onclick="ajout_calcul('-')">-</button> 
-            
-            <button id="0" onclick="ajout_calcul('0')">0</button>
-            <button id="." onclick="ajout_calcul('.')">.</button>
-            <button id="^" onclick="ajout_calcul('**')">^</button>
-            <button id="(-)" onclick="signe()">(-)</button> 
-            <button id="exe" onclick="evaluer()">EXE</button> 
-            
-            <button id="(" onclick="ajout_calcul('(')">(</button>
-            <button id=")" onclick="ajout_calcul(')')">)</button>
-            <button id="Mem" onclick="memorise()">Mem</button> 
-        </div>
-    </div>
-</div>
-
-<script>
-// --- Variables Métier ---
-let ligne = "";
-let resultat = 0;
-let mem = 0;
-let aAfficheResultat = false;
-let isLaunching = false;
-
-// --- Éléments du DOM ---
-const ecranPrincipal = document.getElementById("affichage");
-const ecranHistorique = document.getElementById("historique");
-const memLED = document.getElementById("memLED");
-const chassis = document.getElementById("magnetChassis");
-const mainChassis = document.getElementById("mainChassis");
-const flashScreen = document.getElementById("flashScreen");
-const auraBack = document.getElementById("auraBack");
-const boutons = document.querySelectorAll('.grid-container button');
-
-// --- Stockage d'origine du texte des boutons pour le reset du glitch ---
-const boutonsOrigine = {};
-boutons.forEach(btn => { boutonsOrigine[btn.id] = btn.innerText; });
-
-// --- Synthetiseur Audio Quantique Enrichi ---
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playBeep(freq = 700, duration = 0.05, type = 'triangle') {
-    try {
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-    } catch (e) {}
-}
-
-let rocketBufferSource = null;
-function playRocketEngine(duration = 2.5) {
-    try {
-        const bufferSize = audioCtx.sampleRate * duration;
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        let lastOut = 0.0;
-        for (let i = 0; i < bufferSize; i++) {
-            let white = Math.random() * 2 - 1;
-            data[i] = (lastOut + (0.02 * white)) / 1.02;
-            lastOut = data[i];
-            data[i] *= 3.5;
-        }
-        
-        rocketBufferSource = audioCtx.createBufferSource();
-        rocketBufferSource.buffer = buffer;
-        
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(100, audioCtx.currentTime);
-        filter.frequency.linearRampToValueAtTime(450, audioCtx.currentTime + duration);
-
-        const gainNode = audioCtx.createGain();
-        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-
-        rocketBufferSource.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        rocketBufferSource.start();
-    } catch (e) {}
-}
-
-// --- Effet Magnétique 3D & Aura Lumineuse (Version Restaurée et Amplifiée) ---
-document.addEventListener("mousemove", (e) => {
-    // Diviser par 20 au lieu de 25 pour donner un peu plus d'amplitude 3D au hover
-    let ax = (window.innerWidth / 2 - e.clientX) / 20;  
-    let ay = (window.innerHeight / 2 - e.clientY) / 20; 
-    
-    if (!isLaunching) {
-        chassis.style.transform = `rotateY(${-ax}deg) rotateX(${ay}deg)`;
-    }
-    
-    // Déplacement de l'aura lumineuse en arrière-plan réactif
-    auraBack.style.transform = `translateZ(-50px) translate(${ax * 1.5}px, ${-ay * 1.5}px)`;
-});
-
-document.addEventListener("mouseleave", () => {
-    if (!isLaunching) chassis.style.transform = `rotateY(0deg) rotateX(0deg)`;
-    auraBack.style.transform = `translateZ(-50px) translate(0px, 0px)`;
-});
-
-function formaterLigneVisuelle(chaine) {
-    if (!chaine) return "";
-    return chaine.replace(/\*\*/g, "^").replace(/\*/g, "×").replace(/\//g, "÷");
-}
-
-function majDiodeMemoire() {
-    if (mem !== 0) memLED.classList.add("active");
-    else memLED.classList.remove("active");
-}
-
-function rafraichirEcran() {
-    ecranPrincipal.classList.remove("erreur", "reveal-grandioz");
-    document.body.classList.remove("critical-alert");
-    ecranPrincipal.style.color = "#ffffff";
-    if (ligne === "") {
-        ecranPrincipal.innerText = "0";
-    } else {
-        ecranPrincipal.innerText = formaterLigneVisuelle(ligne);
-    }
-    ecranPrincipal.scrollLeft = ecranPrincipal.scrollWidth;
-}
-
-function ajout_calcul(caractere) {
-    if (isLaunching) return;
-    playBeep(600);
-    if (aAfficheResultat && !isNaN(caractere)) { ligne = ""; }
-    aAfficheResultat = false;
-    ligne += caractere;
-    rafraichirEcran();
-}
-
-// Generateur de particules de plasma (Décollage)
-function spawnPlasma() {
-    if (!isLaunching) return;
-    const rect = mainChassis.getBoundingClientRect();
-    for (let i = 0; i < 3; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('plasma-particle');
-        particle.style.left = `${rect.left + Math.random() * rect.width}px`;
-        particle.style.top = `${rect.bottom - 20}px`;
-        particle.style.background = Math.random() > 0.5 ? '#ff4b5c' : '#00f2fe';
-        document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 600);
-    }
-    requestAnimationFrame(spawnPlasma);
-}
-
-// =========================================================
-// SEQUENCER QUANTIQUE ULTRA-AMPLIFIÉ
-// =========================================================
-function evaluer() {
-    if (ligne === "" || isLaunching) return;
-    
-    try {
-        let formuleCalculee = formaterLigneVisuelle(ligne);
-        let cleanLine = ligne.replace(/[^0-9+\-*/().^]/g, ""); // Correction ici pour autoriser tous les chiffres de 0 à 9
-        resultat = new Function(`return ${cleanLine}`)();
-        
-        if (resultat === Infinity || resultat === -Infinity || isNaN(resultat)) {
-            throw new Error();
-        }
-        if (resultat % 1 !== 0) {
-            bitrate = Math.round(resultat * 1e12) / 1e12;
-        }
-
-        isLaunching = true;
-        let finalResultStr = resultat.toString();
-        document.body.classList.add("earthquake-active");
-        auraBack.style.background = "radial-gradient(circle, rgba(255, 75, 92, 0.4) 0%, transparent 70%)";
-        
-        spawnPlasma();
-        
-        let superShakeInterval = setInterval(() => {
-            if (!isLaunching) return;
-            let devX = (Math.random() * 32 - 16);
-            let devY = (Math.random() * 32 - 16);
-            let devRot = (Math.random() * 8 - 4);
-            let glitchScale = 1 + (Math.random() * 0.1 - 0.05);
-            
-            document.body.style.transform = `translate(${devX}px, ${devY}px) rotate(${devRot}deg) scale(${glitchScale})`;
-            
-            boutons.forEach(btn => {
-                const chars = "0123456789ΔΨΩΦΞ★◆◇";
-                btn.innerText = chars[Math.floor(Math.random() * chars.length)];
-                btn.style.color = Math.random() > 0.5 ? "#00f2fe" : "#ff4b5c";
-            });
-
-        }, 15);
-
-        ecranHistorique.innerText = "LAUNCH SEQUENCE DETECTED...";
-        playBeep(400, 0.4, 'sawtooth');
-        
-        let countdown = 3;
-        ecranPrincipal.innerText = "T-MINUS " + countdown;
-        
-        let timerCountdown = setInterval(() => {
-            countdown--;
-            if (countdown > 0) {
-                ecranPrincipal.innerText = "T-MINUS " + countdown;
-                playBeep(400 + (3 - countdown) * 100, 0.2, 'sawtooth');
-                createShockwave(window.innerWidth / 2, window.innerHeight / 2, "#ffd700");
-            } else {
-                clearInterval(timerCountdown);
-            }
-        }, 400);
-
-        setTimeout(() => {
-            ecranHistorique.innerText = "IGNITION // THRUST 100%";
-            ecranPrincipal.style.color = "#ff4b5c";
-            ecranPrincipal.innerText = "🚀 IGNITE";
-            playRocketEngine(2.8);
-        }, 1100);
-
-        setTimeout(() => {
-            ecranHistorique.innerText = "ORBITAL ESCAPE // WARP DRIVE ACTIVE";
-            ecranPrincipal.style.color = "#00f2fe";
-            ecranPrincipal.innerText = "🌌 WARP CRUISE";
-            warpSpeedActive = true; 
-        }, 2200);
-
-        setTimeout(() => {
-            clearInterval(superShakeInterval);
-            document.body.classList.remove("earthquake-active");
-            document.body.style.transform = "";
-            document.body.style.filter = "";
-            auraBack.style.background = "radial-gradient(circle, rgba(0, 242, 254, 0.15) 0%, transparent 70%)";
-            warpSpeedActive = false;
-            
-            boutons.forEach(btn => {
-                btn.innerText = boutonsOrigine[btn.id] || btn.innerText;
-                btn.style.color = "";
-            });
-            
-            createShockwave(window.innerWidth / 2, window.innerHeight / 2, "#00f2fe", 15);
-            flashScreen.style.opacity = "1";
-            playBeep(1100, 0.7, 'sine');
-            
-            setTimeout(() => { flashScreen.style.opacity = "0"; }, 150);
-
-            ecranHistorique.innerText = formuleCalculee + " =";
-            
-            let iterations = 0;
-            let matrixInterval = setInterval(() => {
-                iterations++;
-                let randomGlow = Array.from({length: finalResultStr.length}, () => 
-                    Math.floor(Math.random() * 10)).join('');
-                ecranPrincipal.innerText = randomGlow;
+        <section id="specs" class="align-right">
+            <div class="content-block" id="block2">
+                <span class="tagline">Spécifications Neurales</span>
+                <h2><span>Performance</span><br>Absolue.</h2>
+                <p>Optimisation asynchrone poussée au cœur de la matrice graphique à 120 FPS stables.</p>
                 
-                if (iterations >= 15) {
-                    clearInterval(matrixInterval);
-                    ecranPrincipal.innerText = finalResultStr;
-                    ecranPrincipal.classList.add("reveal-grandioz");
-                    ligne = finalResultStr;
-                    aAfficheResultat = true;
-                    isLaunching = false; 
-                }
-            }, 50);
+                <div class="grid-cards">
+                    <div class="card">
+                        <h3>0.1ms</h3>
+                        <p>Temps de réponse synaptique.</p>
+                    </div>
+                    <div class="card">
+                        <h3>99.9%</h3>
+                        <p>Taux de bande passante pure.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        }, 4000);
+        <section id="core" class="align-center">
+            <div class="content-block" id="block3">
+                <span class="tagline">Singularité</span>
+                <h2>REJOINDRE<br><span class="highlight-purple">LE VORTEX</span></h2>
+                <p>Fusion ultime entre esthétique épurée et puissance cyberpunk brute.</p>
+                <a href="#" class="btn-premium" onclick="alert('Système fully operational.'); return false;">Activer le Core</a>
+            </div>
+        </section>
 
-    } catch (error) {
-        triggerCriticalState();
-    }
-}
+    </div>
 
-function triggerCriticalState() {
-    document.body.classList.remove("earthquake-active");
-    document.body.style.transform = "";
-    document.body.style.filter = "";
-    warpSpeedActive = false;
-    isLaunching = false;
-    
-    boutons.forEach(btn => {
-        btn.innerText = boutonsOrigine[btn.id] || btn.innerText;
-        btn.style.color = "";
-    });
+    <div id="webgl-container"></div>
 
-    playBeep(120, 0.5, 'sawtooth');
-    document.body.classList.add("critical-alert");
-    auraBack.style.background = "radial-gradient(circle, rgba(255, 0, 85, 0.5) 0%, transparent 70%)";
-    
-    ecranPrincipal.innerText = "DEVICE_ERROR";
-    ecranPrincipal.classList.add("erreur");
-    ecranHistorique.innerText = "QUANTUM FLUX OVERFLOW SYSTEM_HALT";
-    ligne = "";
-    aAfficheResultat = false;
-}
-
-function erase_dernier() {
-    if (isLaunching) return;
-    playBeep(450);
-    if (aAfficheResultat) { erase_tout(); return; }
-    if (ligne.endsWith("**")) ligne = ligne.slice(0, -2);
-    else ligne = ligne.slice(0, -1);
-    rafraichirEcran();
-}
-
-function erase_tout() {
-    if (isLaunching) return;
-    playBeep(350, 0.12);
-    ligne = "";
-    resultat = 0;
-    ecranHistorique.innerText = "";
-    aAfficheResultat = false;
-    rafraichirEcran();
-}
-
-function memorise() {
-    if (isLaunching) return;
-    playBeep(750);
-    if (aAfficheResultat || ligne !== "") {
-        try {
-            let evalVal = new Function(`return ${ligne}`)();
-            if (!isNaN(evalVal) && evalVal !== Infinity) {
-                mem = evalVal;
-                majDiodeMemoire();
-            }
-        } catch(e){}
-    } else {
-        ligne += mem.toString();
-        rafraichirEcran();
-    }
-}
-
-function signe() {
-    if (isLaunching) return;
-    playBeep(520);
-    if (ligne === "") return;
-    if (ligne.startsWith("-(") && ligne.endsWith(")")) {
-        ligne = ligne.slice(2, -1);
-    } else {
-        ligne = `-(${ligne})`;
-    }
-    rafraichirEcran();
-}
-
-// --- Captation des clics boutons pour ondes de choc locales ---
-document.querySelectorAll('.grid-container button').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        if (isLaunching) return;
+    <script>
+        /* --- CONFIGURATION INITIALE THREE.JS --- */
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
         
-        let ripple = document.createElement('span');
-        ripple.classList.add('ripple');
-        this.appendChild(ripple);
-        let x = e.clientX - e.target.getBoundingClientRect().left;
-        let y = e.clientY - e.target.getBoundingClientRect().top;
-        ripple.style.left = `${x}px`;
-        ripple.style.top = `${y}px`;
-        setTimeout(() => { ripple.remove(); }, 500);
+        // Brouillard atmosphérique profond pour le blending cyberpunk
+        scene.fog = new THREE.FogExp2(0x030303, 0.015);
 
-        createShockwave(e.clientX, e.clientY, "#00f2fe", 4);
-    });
-});
+        // Caméra grand angle cinématographique
+        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 30;
 
-// --- Clavier Physique ---
-document.addEventListener("keydown", (event) => {
-    if (isLaunching) return;
-    let key = event.key;
-    let buttonId = null;
+        // Rendu optimisé WebGL antialiasing
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limite à un ratio de 2 pour épargner le GPU mobile
+        renderer.setClearColor(scene.fog.color);
+        container.appendChild(renderer.domElement);
 
-    if (!isNaN(key)) buttonId = key;
-    else if (key === "+") buttonId = "+";
-    else if (key === "-") buttonId = "-";
-    else if (key === "*") buttonId = "x";
-    else if (key === "/") buttonId = "÷";
-    else if (key === ".") buttonId = ".";
-    else if (key === "(") buttonId = "(";
-    else if (key === ")") buttonId = ")";
-    else if (key === "^") buttonId = "^";
-    else if (key === "Enter" || key === "=") { buttonId = "exe"; event.preventDefault(); }
-    else if (key === "Backspace") buttonId = "DEL";
-    else if (key === "Escape") buttonId = "AC";
+        /* --- OBJETS 3D : GÉOMÉTRIES CYBERPUNK --- */
+        const group3D = new THREE.Group();
+        scene.add(group3D);
 
-    if (buttonId) {
-        const btnElement = document.getElementById(buttonId);
-        if (btnElement) {
-            btnElement.classList.add("clavier-actif");
-            setTimeout(() => btnElement.classList.remove("clavier-actif"), 120);
-            btnElement.click();
+        // 1. Matrice de Particules Interactives (Nuage stellaire / DATA)
+        const particleCount = window.innerWidth > 768 ? 2500 : 1000;
+        const particleGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const randomSpeeds = new Float32Array(particleCount);
+
+        for(let i = 0; i < particleCount * 3; i+=3) {
+            // Distribution sphérique / dispersée
+            positions[i] = (Math.random() - 0.5) * 60;
+            positions[i+1] = (Math.random() - 0.5) * 60;
+            positions[i+2] = (Math.random() - 0.5) * 60;
+            randomSpeeds[i/3] = Math.random() * 0.05 + 0.01;
         }
-    }
-});
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-// ==============================================
-// CANVASES : FOND STELLAIRE & ONDES DE CHOC QUANTIQUES
-// ==============================================
-const starCanvas = document.getElementById("starfield");
-const starCtx = starCanvas.getContext("2d");
-const waveCanvas = document.getElementById("shockwaveCanvas");
-const waveCtx = waveCanvas.getContext("2d");
+        // Texture procédurale pour les particules afin d'éviter le chargement de fichiers externes (Self-contained)
+        const createParticleTexture = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 16; canvas.height = 16;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(8,8,0, 8,8,8);
+            grad.addColorStop(0, 'rgba(255,255,255,1)');
+            grad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = grad; ctx.fillRect(0,0,16,16);
+            return new THREE.CanvasTexture(canvas);
+        };
 
-let numStars = 260;
-let stars = [];
-let maxDepth = 1000;
-let warpSpeedActive = false;
-let currentSpeed = 1.2;
-let shockwaves = [];
-
-function initCanvases() {
-    starCanvas.width = window.innerWidth;
-    starCanvas.height = window.innerHeight;
-    waveCanvas.width = window.innerWidth;
-    waveCanvas.height = window.innerHeight;
-    
-    stars = [];
-    for (let i = 0; i < numStars; i++) {
-        stars.push({
-            x: Math.random() * starCanvas.width - starCanvas.width / 2,
-            y: Math.random() * starCanvas.height - starCanvas.height / 2,
-            z: Math.random() * maxDepth,
-            color: Math.random() > 0.85 ? "#ffd700" : (Math.random() > 0.6 ? "#00f2fe" : "#ffffff")
+        const particleMat = new THREE.PointsMaterial({
+            size: 0.35,
+            map: createParticleTexture(),
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            color: 0x00f3ff
         });
-    }
-}
+        const particleSystem = new THREE.Points(particleGeo, particleMat);
+        group3D.add(particleSystem);
 
-function createShockwave(x, y, color, maxSpeed = 5) {
-    shockwaves.push({
-        x: x,
-        y: y,
-        radius: 1,
-        maxRadius: 180 + Math.random() * 100,
-        opacity: 1,
-        speed: maxSpeed,
-        color: color
-    });
-}
+        // 2. L'Objet Central : Le Vortex (Tore en maillage fil de fer haut de gamme)
+        const torusGeo = new THREE.TorusKnotGeometry(6, 1.8, 120, 16, 3, 4);
+        const torusMat = new THREE.MeshBasicMaterial({
+            color: 0xbd00ff,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.4
+        });
+        const centralVortex = new THREE.Mesh(torusGeo, torusMat);
+        group3D.add(centralVortex);
 
-function drawShockwaves() {
-    waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
-    for (let i = shockwaves.length - 1; i >= 0; i--) {
-        let wave = shockwaves[i];
-        wave.radius += wave.speed;
-        wave.opacity = 1 - (wave.radius / wave.maxRadius);
+        // 3. Éléments flottants secondaires (Hologrammes)
+        const floatersGroup = new THREE.Group();
+        group3D.add(floatersGroup);
+        const geometries = [new THREE.IcosahedronGeometry(1.5, 1), new THREE.OctahedronGeometry(1, 0)];
         
-        if (wave.opacity <= 0) {
-            shockwaves.splice(i, 1);
-            continue;
+        for(let i=0; i<12; i++) {
+            const mat = new THREE.MeshBasicMaterial({
+                color: i % 2 === 0 ? 0x00f3ff : 0xbd00ff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.25
+            });
+            const mesh = new THREE.Mesh(geometries[i % geometries.length], mat);
+            mesh.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*40, (Math.random()-0.5)*30);
+            mesh.userData = { speedX: Math.random()*0.01, speedY: Math.random()*0.01 };
+            floatersGroup.add(mesh);
         }
-        
-        waveCtx.beginPath();
-        waveCtx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
-        waveCtx.strokeStyle = wave.color;
-        waveCtx.globalAlpha = wave.opacity;
-        waveCtx.lineWidth = 2;
-        waveCtx.stroke();
-    }
-    waveCtx.globalAlpha = 1.0;
-}
 
-function updateAndDrawStars() {
-    // 1. On efface d'abord STRICTEMENT tout l'écran pour supprimer les résidus bizarres
-    starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
-    
-    // 2. On applique le fond semi-transparent par-dessus pour garder l'effet de traînée des étoiles
-    starCtx.fillStyle = "rgba(2, 1, 6, 0.3)";
-    starCtx.fillRect(0, 0, starCanvas.width, starCanvas.height);
-    
-    let targetSpeed = warpSpeedActive ? 45 : 1.2;
-    currentSpeed += (targetSpeed - currentSpeed) * 0.05;
-    
-    let cx = starCanvas.width / 2;
-    let cy = starCanvas.height / 2;
-    
-    stars.forEach(star => {
-        star.z -= currentSpeed;
-        if (star.z <= 0) {
-            star.z = maxDepth;
-            star.x = Math.random() * starCanvas.width - cx;
-            star.y = Math.random() * starCanvas.height - cy;
-        }
-        
-        let k = 128 / star.z;
-        let px = star.x * k + cx;
-        let py = star.y * k + cy;
-        
-        if (px >= 0 && px < starCanvas.width && py >= 0 && py < starCanvas.height) {
-            let size = (1 - star.z / maxDepth) * 3;
-            starCtx.beginPath();
-            starCtx.arc(px, py, size, 0, Math.PI * 2);
-            starCtx.fillStyle = star.color;
-            starCtx.fill();
-        }
-    });
-}
+        /* --- ÉCLAIRAGE DYNAMIQUE EN TEMPS RÉEL --- */
+        const lightCyan = new THREE.PointLight(0x00f3ff, 3, 50);
+        lightCyan.position.set(15, 10, 10);
+        scene.add(lightCyan);
 
-function render() {
-    updateAndDrawStars();
-    drawShockwaves();
-    requestAnimationFrame(render);
-}
+        const lightPurple = new THREE.PointLight(0xbd00ff, 4, 50);
+        lightPurple.position.set(-15, -10, 10);
+        scene.add(lightPurple);
 
-// Initialisation au chargement et resize
-window.addEventListener("resize", initCanvases);
-initCanvases();
-render(); // Lance la boucle d'animation globale
-</script>
+        /* --- INTERACTION SOURIS (PARALLAXE DU REGARD) --- */
+        const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+        window.addEventListener('mousemove', (e) => {
+            // Normalisation des coordonnées de la souris (-1 à 1)
+            mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        /* --- ANIMATION FRAME LOOP (120FPS CHORÉGRAPHIE) --- */
+        const clock = new THREE.Clock();
+        
+        const tick = () => {
+            const elapsedTime = clock.getElapsedTime();
+
+            // Inertie fluide pour la parallaxe de la souris (Lerp technique)
+            mouse.x += (mouse.targetX - mouse.x) * 0.08;
+            mouse.y += (mouse.targetY - mouse.y) * 0.08;
+
+            // Application subtile sur le groupe principal pour donner de la profondeur
+            group3D.rotation.y = mouse.x * 0.25;
+            group3D.rotation.x = -mouse.y * 0.25;
+
+            // Rotations autonomes des structures géométriques
+            centralVortex.rotation.x = elapsedTime * 0.1;
+            centralVortex.rotation.y = elapsedTime * 0.15;
+            
+            particleSystem.rotation.y = elapsedTime * 0.02;
+
+            // Animation autonome des objets flottants secondaires
+            floatersGroup.children.forEach(child => {
+                child.rotation.x += child.userData.speedX;
+                child.rotation.y += child.userData.speedY;
+                child.position.y += Math.sin(elapsedTime + child.position.x) * 0.005;
+            });
+
+            // Rendu final de la frame
+            renderer.render(scene, camera);
+            window.requestAnimationFrame(tick);
+        };
+        tick();
+
+        /* --- ORCHESTRATION GSAP SCROLLTRIGGER (CINÉMATIQUE CINÉTIQUE) --- */
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Configuration globale de l'amortissement du scroll (Smooth feel type Apple)
+        const scrollContainer = document.getElementById('smooth-content');
+        let scrollVelocity = 0;
+
+        // Déclenchement des apparitions de texte (Reveal Premium)
+        const textBlocks = ['#block1', '#block2', '#block3'];
+        textBlocks.forEach((block) => {
+            gsap.to(block, {
+                opacity: 1,
+                y: 0,
+                duration: 1.4,
+                ease: "power4.out",
+                scrollTrigger: {
+                    trigger: block,
+                    start: "top 80%",
+                    toggleActions: "play none none reverse"
+                }
+            });
+        });
+
+        // TIMELINE CINÉMATIQUE 3D : Synchronisation de la caméra et de l'espace avec le défilement
+        const treeTimeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: "body",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1.2, // Amortissement ultra-propre de la timeline 3D
+                onUpdate: (self) => {
+                    // Capture de la vélocité du scroll pour émuler le Motion Blur
+                    scrollVelocity = Math.abs(self.getVelocity());
+                    const blurIntensity = Math.min(scrollVelocity / 150, 8); // Max 8px de flou
+                    const skewIntensity = Math.min(scrollVelocity / 400, 3); // Distorsion légère
+                    
+                    if(window.innerWidth > 768) {
+                        scrollContainer.style.filter = `blur(${blurIntensity}px)`;
+                        scrollContainer.style.transform = `skewY(${skewIntensity * (self.direction)}deg)`;
+                    }
+                }
+            }
+        });
+
+        // Séquençage des mouvements de caméra et variations d'ambiances colorimétriques
+        treeTimeline
+            // Étape 1 : Rapprochement et rotation vers la section Tech Specs
+            to(camera.position, { z: 18, x: -8, ease: "none" }, 0)
+            to(centralVortex.scale, { x: 1.3, y: 1.3, z: 1.3, ease: "none" }, 0)
+            to(particleMat, { color: 0xbd00ff, ease: "none" }, 0) // Changement chromatique progressif
+            
+            // Étape 2 : Plongée finale au cœur du vortex de données (Section Core)
+            .to(camera.position, { z: 8, x: 0, y: -2, ease: "none" })
+            .to(centralVortex.rotation, { z: Math.PI, ease: "none" }, "<")
+            .to(particleMat, { size: 0.6, ease: "none" }, "<");
+
+        /* --- COMPATIBILITÉ & RESPONSIVE DESIGN ASYNCHRONE --- */
+        window.addEventListener('resize', () => {
+            // Update Caméra
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            
+            // Update Rendu
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        });
+    </script>
 </body>
 </html>
