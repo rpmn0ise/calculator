@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cyberpunk Premium 3D</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   RESET
+========================================================= */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#050505;
+    color:white;
+    overflow-x:hidden;
+    cursor:default;
+}
+
+/* =========================================================
+   THREE.JS CANVAS
+========================================================= */
+#bg{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:-5;
+}
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+:root{
+    --violet:#a855f7;
+    --cyan:#00e5ff;
+    --glass:rgba(255,255,255,0.06);
+    --border:rgba(255,255,255,0.15);
+}
+
+section{
+    min-height:100vh;
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:8vw;
+    position:relative;
+}
+
+.container{
+    width:min(1300px,100%);
+}
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+nav{
+    position:fixed;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(1100px,92%);
+    height:70px;
+    backdrop-filter:blur(16px);
+    background:rgba(10,10,10,0.45);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:22px;
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    box-shadow:
+        0 0 40px rgba(0,229,255,0.08),
+        inset 0 0 20px rgba(255,255,255,0.03);
+}
+
+.logo{
+    font-weight:800;
+    letter-spacing:3px;
+    font-size:1.1rem;
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+.nav-links{
+    display:flex;
+    gap:24px;
+}
+
+.nav-links a{
+    color:#ddd;
+    text-decoration:none;
+    font-size:.92rem;
+    position:relative;
+    transition:.35s;
+}
+
+.nav-links a::after{
+    content:'';
+    position:absolute;
+    left:0;
+    bottom:-5px;
+    width:0%;
+    height:2px;
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    transition:.35s;
+}
+
+.nav-links a:hover{
+    color:white;
+}
+
+.nav-links a:hover::after{
+    width:100%;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+.hero{
+    position:relative;
+}
+
+.hero-grid{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:60px;
+    align-items:center;
+}
+
+.hero h1{
+    font-size:clamp(3rem,8vw,7rem);
+    line-height:.9;
+    font-weight:800;
+    margin-bottom:25px;
+}
+
+.gradient{
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+.hero p{
+    max-width:700px;
+    color:#bdbdbd;
+    line-height:1.7;
+    font-size:1.05rem;
+}
+
+.hero-card{
+    position:relative;
+    height:500px;
+    border-radius:32px;
+    background:linear-gradient(
+        180deg,
+        rgba(255,255,255,0.08),
+        rgba(255,255,255,0.02)
+    );
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter:blur(18px);
+    overflow:hidden;
+    box-shadow:
+        0 0 80px rgba(0,229,255,0.1),
+        0 0 120px rgba(168,85,247,0.08);
+}
+
+.hero-card::before{
+    content:'';
+    position:absolute;
+    inset:-30%;
+    background:
+        radial-gradient(circle at center,
+        rgba(0,229,255,0.25),
+        transparent 60%);
+    animation:spin 12s linear infinite;
+}
+
+.hero-card::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:
+    linear-gradient(
+        135deg,
+        rgba(255,255,255,0.08),
+        transparent 30%
+    );
+}
+
+@keyframes spin{
+    from{ transform:rotate(0deg);}
+    to{ transform:rotate(360deg);}
+}
+
+/* =========================================================
+   GLASS CARDS
+========================================================= */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:28px;
+}
+
+.card{
+    position:relative;
+    padding:34px;
+    border-radius:28px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter:blur(18px);
+    overflow:hidden;
+    transition:
+        transform .45s cubic-bezier(.2,.8,.2,1),
+        border .3s,
+        box-shadow .3s;
+}
+
+.card::before{
+    content:'';
+    position:absolute;
+    inset:-100%;
+    background:radial-gradient(circle,
+        rgba(0,229,255,0.18),
+        transparent 55%);
+    transition:.6s;
+}
+
+.card:hover{
+    transform:translateY(-10px) scale(1.02);
+    border:1px solid rgba(0,229,255,0.3);
+    box-shadow:
+        0 20px 60px rgba(0,229,255,0.15),
+        0 10px 40px rgba(168,85,247,0.12);
+}
+
+.card:hover::before{
+    inset:-20%;
+}
+
+.card h3{
+    margin-bottom:14px;
+    font-size:1.3rem;
+}
+
+.card p{
+    color:#bbb;
+    line-height:1.7;
+}
+
+/* =========================================================
+   TITLES
+========================================================= */
+.section-title{
+    font-size:clamp(2rem,5vw,4rem);
+    margin-bottom:60px;
+    font-weight:800;
+}
+
+.center{
+    text-align:center;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+.btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:35px;
+    padding:16px 28px;
+    border-radius:18px;
+    text-decoration:none;
+    color:white;
+    font-weight:600;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,229,255,.15),
+            rgba(168,85,247,.15)
+        );
+
+    border:1px solid rgba(255,255,255,0.12);
+    backdrop-filter:blur(16px);
+
+    transition:.35s;
+}
+
+.btn:hover{
+    transform:translateY(-3px);
+    box-shadow:
+        0 10px 40px rgba(0,229,255,0.18);
+}
+
+/* =========================================================
+   PARALLAX OVERLAYS
+========================================================= */
+.overlay-glow{
+    position:absolute;
+    width:600px;
+    height:600px;
+    border-radius:50%;
+    background:radial-gradient(circle,
+    rgba(0,229,255,.12),
+    transparent 70%);
+    filter:blur(60px);
+    pointer-events:none;
+}
+
+.glow1{
+    top:-100px;
+    left:-200px;
+}
+
+.glow2{
+    bottom:-200px;
+    right:-100px;
+    background:radial-gradient(circle,
+    rgba(168,85,247,.15),
+    transparent 70%);
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+footer{
+    padding:80px 30px;
+    text-align:center;
+    color:#888;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media(max-width:900px){
+
+    .hero-grid{
+        grid-template-columns:1fr;
+    }
+
+    .hero-card{
+        height:320px;
+    }
+
+    .nav-links{
+        display:none;
+    }
+
+    section{
+        padding-top:120px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<!-- ======================================================
+     NAVBAR
+====================================================== -->
+<nav>
+    <div class="logo">NEON/X</div>
+
+    <div class="nav-links">
+        <a href="#hero">Accueil</a>
+        <a href="#features">Features</a>
+        <a href="#immersive">Immersion</a>
+        <a href="#future">Future</a>
+    </div>
+</nav>
+
+<!-- ======================================================
+     HERO
+====================================================== -->
+<section class="hero" id="hero">
+
+    <div class="overlay-glow glow1"></div>
+
+    <div class="container hero-grid">
+
+        <div>
+            <h1>
+                CYBERPUNK<br>
+                <span class="gradient">PREMIUM</span>
+            </h1>
+
+            <p>
+                Expérience 3D temps réel ultra moderne avec effets
+                cinématiques, animations synchronisées au scroll,
+                ambiance futuriste et rendu GPU premium.
+            </p>
+
+            <a class="btn" href="#features">
+                Explorer
+            </a>
+        </div>
+
+        <div class="hero-card"></div>
+
+    </div>
+</section>
+
+<!-- ======================================================
+     FEATURES
+====================================================== -->
+<section id="features">
+
+    <div class="overlay-glow glow2"></div>
+
+    <div class="container">
+
+        <h2 class="section-title">
+            Architecture <span class="gradient">Immersive</span>
+        </h2>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>3D Temps Réel</h3>
+                <p>
+                    Scène Three.js optimisée GPU avec particules
+                    dynamiques, bloom et éclairage volumétrique.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Scroll Cinématique</h3>
+                <p>
+                    Animations GSAP ScrollTrigger ultra fluides
+                    avec transitions synchronisées et parallaxe.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Glassmorphism</h3>
+                <p>
+                    Interface premium avec flou avancé,
+                    reflets dynamiques et glow subtil.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- ======================================================
+     IMMERSIVE
+====================================================== -->
+<section id="immersive">
+
+    <div class="container center">
+
+        <h2 class="section-title">
+            Scroll <span class="gradient">Réactif</span>
+        </h2>
+
+        <p style="max-width:800px;margin:auto;color:#bbb;line-height:1.8;">
+            Chaque section modifie dynamiquement la caméra,
+            la profondeur, les particules et les objets 3D.
+            Les animations sont synchronisées avec le défilement
+            pour produire une sensation immersive proche des
+            expériences Apple et Tesla.
+        </p>
+
+    </div>
+</section>
+
+<!-- ======================================================
+     FUTURE
+====================================================== -->
+<section id="future">
+
+    <div class="container">
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>Motion Blur</h3>
+                <p>
+                    Distorsions visuelles et transitions GPU
+                    pendant les déplacements.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Performance</h3>
+                <p>
+                    Optimisation mobile, rendu léger et animations
+                    hardware accelerated.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Future UI</h3>
+                <p>
+                    Design minimaliste inspiré du luxe technologique
+                    et des interfaces futuristes cyberpunk.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    CYBERPUNK PREMIUM EXPERIENCE — THREE.JS + GSAP
+</footer>
+
+<!-- ======================================================
+     LIBS
+====================================================== -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+<!-- ======================================================
+     THREE.JS
+====================================================== -->
+<script>
+
+/* =========================================================
+   BASIC SETUP
+========================================================= */
+
+const canvas = document.getElementById('bg');
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+    65,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+);
+
+camera.position.z = 12;
+
+const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias:true,
+    alpha:true,
+    powerPreference:"high-performance"
+});
+
+renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio,2)
+);
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+/* =========================================================
+   LIGHTS
+========================================================= */
+
+const ambient = new THREE.AmbientLight(
+    0xffffff,
+    0.5
+);
+
+scene.add(ambient);
+
+const pointLight = new THREE.PointLight(
+    0x00e5ff,
+    4,
+    100
+);
+
+pointLight.position.set(10,10,10);
+
+scene.add(pointLight);
+
+const purpleLight = new THREE.PointLight(
+    0xa855f7,
+    3,
+    100
+);
+
+purpleLight.position.set(-10,-5,8);
+
+scene.add(purpleLight);
+
+/* =========================================================
+   MAIN OBJECT
+========================================================= */
+
+const geometry = new THREE.IcosahedronGeometry(3,1);
+
+const material = new THREE.MeshPhysicalMaterial({
+    color:0x111111,
+    metalness:1,
+    roughness:0.15,
+    transmission:0.2,
+    thickness:1,
+    emissive:new THREE.Color(0x220044),
+    emissiveIntensity:1,
+    clearcoat:1
+});
+
+const sphere = new THREE.Mesh(
+    geometry,
+    material
+);
+
+scene.add(sphere);
+
+/* =========================================================
+   FLOATING RINGS
+========================================================= */
+
+const ringGroup = new THREE.Group();
+
+for(let i=0;i<3;i++){
+
+    const ringGeo = new THREE.TorusGeometry(
+        4 + i,
+        0.03,
+        16,
+        200
+    );
+
+    const ringMat = new THREE.MeshBasicMaterial({
+        color:i % 2 === 0 ? 0x00e5ff : 0xa855f7
+    });
+
+    const ring = new THREE.Mesh(
+        ringGeo,
+        ringMat
+    );
+
+    ring.rotation.x = Math.random()*Math.PI;
+    ring.rotation.y = Math.random()*Math.PI;
+
+    ringGroup.add(ring);
+}
+
+scene.add(ringGroup);
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+const particlesCount = 2500;
+
+const positions = new Float32Array(
+    particlesCount * 3
+);
+
+for(let i=0;i<particlesCount*3;i++){
+
+    positions[i] = (Math.random() - 0.5) * 80;
+}
+
+const particlesGeometry =
+    new THREE.BufferGeometry();
+
+particlesGeometry.setAttribute(
+    'position',
+    new THREE.BufferAttribute(
+        positions,
+        3
+    )
+);
+
+const particlesMaterial =
+    new THREE.PointsMaterial({
+        color:0x00e5ff,
+        size:0.03,
+        transparent:true,
+        opacity:0.8
+    });
+
+const particles =
+    new THREE.Points(
+        particlesGeometry,
+        particlesMaterial
+    );
+
+scene.add(particles);
+
+/* =========================================================
+   MOUSE PARALLAX
+========================================================= */
+
+let mouseX = 0;
+let mouseY = 0;
+
+window.addEventListener('mousemove',(e)=>{
+
+    mouseX = (e.clientX / window.innerWidth - .5);
+    mouseY = (e.clientY / window.innerHeight - .5);
+
+});
+
+/* =========================================================
+   GSAP SCROLL
+========================================================= */
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* Hero animation */
+gsap.from(".hero h1",{
+    y:100,
+    opacity:0,
+    duration:1.5,
+    ease:"power4.out"
+});
+
+gsap.from(".hero p",{
+    y:40,
+    opacity:0,
+    duration:1.5,
+    delay:.2,
+    ease:"power3.out"
+});
+
+/* Cards reveal */
+gsap.utils.toArray(".card").forEach(card=>{
+
+    gsap.from(card,{
+        scrollTrigger:{
+            trigger:card,
+            start:"top 85%"
+        },
+        opacity:0,
+        y:80,
+        duration:1.2,
+        ease:"power4.out"
+    });
+
+});
+
+/* 3D scene linked to scroll */
+gsap.to(sphere.rotation,{
+    x:Math.PI * 2,
+    y:Math.PI * 3,
+    scrollTrigger:{
+        trigger:"body",
+        start:"top top",
+        end:"bottom bottom",
+        scrub:1.5
+    }
+});
+
+gsap.to(camera.position,{
+    z:6,
+    y:-4,
+    scrollTrigger:{
+        trigger:"#future",
+        start:"top center",
+        end:"bottom bottom",
+        scrub:2
+    }
+});
+
+gsap.to(ringGroup.rotation,{
+    z:Math.PI * 2,
+    x:Math.PI,
+    scrollTrigger:{
+        trigger:"#immersive",
+        start:"top bottom",
+        end:"bottom top",
+        scrub:2
+    }
+});
+
+/* =========================================================
+   ANIMATION LOOP
+========================================================= */
+
+const clock = new THREE.Clock();
+
+function animate(){
+
+    requestAnimationFrame(animate);
+
+    const elapsed = clock.getElapsedTime();
+
+    /* Floating */
+    sphere.position.y =
+        Math.sin(elapsed * 0.8) * 0.3;
+
+    sphere.rotation.y += 0.002;
+    sphere.rotation.x += 0.001;
+
+    ringGroup.rotation.y += 0.0015;
+
+    particles.rotation.y += 0.0005;
+
+    /* Mouse parallax */
+    camera.position.x +=
+        (mouseX * 2 - camera.position.x) * 0.03;
+
+    camera.position.y +=
+        (-mouseY * 2 - camera.position.y) * 0.03;
+
+    camera.lookAt(scene.position);
+
+    renderer.render(scene,camera);
+}
+
+animate();
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener('resize',()=>{
+
+    camera.aspect =
+        window.innerWidth /
+        window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+    renderer.setPixelRatio(
+        Math.min(window.devicePixelRatio,2)
+    );
+});
+
+</script>
+
+</body>
+</html>
